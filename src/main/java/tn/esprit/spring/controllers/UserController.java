@@ -15,30 +15,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import tn.esprit.spring.configuration.JwtService;
 import tn.esprit.spring.entities.Nationality;
 import tn.esprit.spring.entities.Role;
 import tn.esprit.spring.entities.User;
 import tn.esprit.spring.repositories.UserRepository;
 import tn.esprit.spring.services.IUserService;
-import java.util.Optional;
+
+import java.util.*;
 
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
 @AllArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@CrossOrigin(origins ="http://localhost:4200\"")
+@CrossOrigin(origins ="http://localhost:4200")
 public class UserController {
 
     final IUserService userService;
     final ObjectMapper objectMapper; // Jackson's ObjectMapper
+    final JwtService jwtService;
     UserRepository userRepository;
 
  /*   @PostMapping("/add")
@@ -79,24 +81,17 @@ public class UserController {
         throw new IllegalArgumentException("Nationality with value " + value + " not found");
     }
 
-/*
-    @PostMapping(value = "/add", consumes = {"multipart/form-data"})
-    public ResponseEntity<User> addUser(
-            @RequestPart("user") String userJson,
-            @RequestPart(value = "profilePicture", required = false) MultipartFile file) throws IOException {
-        try {
-        User user = objectMapper.readValue(userJson, User.class);
-        User savedUser = userService.addUserimage(user, file);
 
 
-        return ResponseEntity.ok(savedUser);
-    } catch (IOException ex) {
-            throw new RuntimeException("Error processing request", ex);
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
+        boolean result = userService.requestPasswordReset(request.get("email"));
+        if (result) {
+            return ResponseEntity.ok().body("Reset password email sent.");
         }
-
+        return ResponseEntity.badRequest().body("Email not found.");
     }
 
-*/
 @PostMapping(value = "/add", consumes = {"multipart/form-data"})
 public ResponseEntity<?> addUser(
         @ModelAttribute @Valid User user,
@@ -107,11 +102,6 @@ public ResponseEntity<?> addUser(
         if (file != null && !file.isEmpty()) {
             byte[] profilePictureBytes = file.getBytes();
             user.setProfilePicture(profilePictureBytes);
-        }
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            return ResponseEntity
-                    .badRequest()
-                    .body("Erreur: Cet email est déjà utilisé!");
         }
 
 
@@ -130,6 +120,44 @@ public ResponseEntity<?> addUser(
 
 
 
+/*
+    @PostMapping(value = "/add", consumes = {"multipart/form-data"})
+    public ResponseEntity<?> addUser(
+            @ModelAttribute @Valid User user,
+            @RequestPart(value = "profilePicture", required = false) MultipartFile file,
+            @RequestParam("dateOfBirth") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dateOfBirth
+    ) {
+        try {
+            // Votre logique pour enregistrer l'utilisateur, incluant l'ajout de l'image de profil
+            User savedUser = userService.addUserimage(user, file);
+            // Obtenez les détails de l'utilisateur nécessaires à la génération du token JWT
+            UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+                    savedUser.getEmail(), // Utilisez un champ approprié de votre objet User comme nom d'utilisateur
+                    savedUser.getPassword(), // Utilisez un champ approprié de votre objet User comme mot de passe
+                    // Ajoutez les rôles ou les autorités de l'utilisateur s'ils sont disponibles dans votre objet User
+                    // Utilisez savedUser.getAuthorities() si vos utilisateurs ont des rôles définis
+                    // Sinon, vous devrez définir les rôles ou les autorités manuellement
+                    Collections.emptyList() // Pour l'instant, nous utilisons une liste vide d'autorités
+            );
+
+            // Générer le token JWT
+            Map<String, Object> extraClaims = new HashMap<>();
+            // Ajoutez des informations supplémentaires au JWT si nécessaire
+            String token = jwtService.generateToken(extraClaims, userDetails);
+
+            // Ajouter le token JWT à la réponse
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", token);
+            response.put("message", "Utilisateur enregistré avec succès");
+
+            return ResponseEntity.ok(response);
+        } catch (Exception ex) {
+            // Capturez toute autre exception et renvoyez un message d'erreur approprié
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors du traitement de la requête : " + ex.getMessage());
+        }
+    }
+
+*/
 
 
 

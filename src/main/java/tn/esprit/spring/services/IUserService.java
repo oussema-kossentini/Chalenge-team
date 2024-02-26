@@ -15,4 +15,5 @@ public interface IUserService {
     public List<User> retrieveAllUsers();
     public void removeUser(String id);
     public User modifyUser(User updatedUser);
+    public boolean requestPasswordReset(String email);
 }

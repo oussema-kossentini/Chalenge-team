@@ -9,12 +9,14 @@ import org.springframework.core.convert.converter.GenericConverter;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @EntityScan("tn.esprit.entities")
 @ComponentScan( "tn.esprit.spring")
 @EnableMongoRepositories(basePackages = "tn.esprit.spring.repositories")
 @SpringBootApplication
+@EnableWebMvc
 public class CourszellobackApplication  implements WebMvcConfigurer {
 
 	public static void main(String[] args) {

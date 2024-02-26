@@ -11,6 +11,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Service
@@ -18,7 +21,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 public class UserService implements IUserService {
     @Autowired
     UserRepository userRepository;
-
+private  final  EmailService emailService;
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
     private final Path rootLocation = Paths.get("path/to/your/uploaded/images");
@@ -31,6 +34,8 @@ public class UserService implements IUserService {
             } catch (IOException e) {
                 throw new RuntimeException("Failed to store uploaded image", e);
             }
+
+
         }
         String encodedPassword = passwordEncoder.encode(user.getPassword()); // Hacher le mot de passe
         user.setPassword(encodedPassword); // Définir le mot de passe haché
@@ -40,7 +45,22 @@ public class UserService implements IUserService {
 
 
 
+    public boolean requestPasswordReset(String email) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            String resetToken = UUID.randomUUID().toString();
+            user.setResetToken(resetToken);
+            userRepository.save(user);
 
+            emailService.sendSimpleMessage(
+                    user.getEmail(),
+                    "Password Reset Request",
+                    "To reset your password, use this code: " + resetToken);
+            return true;
+        }
+        return false;
+    }
 
 
 

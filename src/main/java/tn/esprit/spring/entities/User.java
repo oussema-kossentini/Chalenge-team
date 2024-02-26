@@ -9,21 +9,23 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 
 import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Document
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 
-public class User implements Serializable {
+public class User implements UserDetails,Serializable {
     @Id
     @JsonIgnore
     String idUser;
@@ -48,10 +50,43 @@ public class User implements Serializable {
     boolean statue;
     @Field(targetType = FieldType.STRING)
     Role role;
-
+    String resetToken;
+@JsonIgnore
    @DBRef
     Classe classe;
 
     @DBRef
      Set<Publication> publications;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        // Convertir le rôle de l'utilisateur en GrantedAuthority
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + this.role.name()));
+    }
+
+    @Override
+    public String getUsername() {
+        // Utiliser l'email comme identifiant de connexion
+        return this.email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+          return this.statue;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true ;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }
