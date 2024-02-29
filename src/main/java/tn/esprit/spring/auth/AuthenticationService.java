@@ -19,6 +19,7 @@ import tn.esprit.spring.services.EmailService;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.Random;
@@ -40,8 +41,11 @@ public class AuthenticationService {
             int code = 100000 + random.nextInt(900000);
             String resetToken = "courzello-" + code;
             user.setResetToken(resetToken);
+            user.setResetTokenExpiration(LocalDateTime.now().plusMinutes(10));
             userRepository.save(user);
             String emailToBeSent = user.getEmail();
+            //LocalDateTime expirationTime = LocalDateTime.now().plusMinutes(5);
+            //user.setResetTokenExpiration(expirationTime);
 
             // Envoi de l'e-mail avec le lien de réinitialisation du mot de passe
             try {
@@ -55,15 +59,28 @@ public class AuthenticationService {
         }
         return false;
     }
-
-    public boolean verifyResetCode(String email, String code) {
+/*
+    public boolean verifyResetCode(String email,String code) {
         Optional<User> userOptional = userRepository.findByEmail(email);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            return user.getResetToken().equals(code);
+            return user.getResetToken().equals(code) ;
         }
         return false;
+    }*/
+public boolean verifyResetCode(String email, String code) {
+    Optional<User> userOptional = userRepository.findByEmail(email);
+    if (userOptional.isPresent()) {
+        User user = userOptional.get();
+        // Check both token match and token not expired
+        boolean tokenMatches = user.getResetToken().equals(code);
+        boolean tokenNotExpired = LocalDateTime.now().isBefore(user.getResetTokenExpiration());
+
+        return tokenMatches && tokenNotExpired;
     }
+    return false;
+}
+
 
     public boolean updatePassword(String email, String newPassword) {
         Optional<User> userOptional = userRepository.findByEmail(email);

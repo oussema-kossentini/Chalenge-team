@@ -63,7 +63,7 @@ public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> payload
     }
     @PostMapping("/verify-reset-code")
     public ResponseEntity<?> verifyResetCode(@RequestParam("email") String email, @RequestParam("resetToken") String resetToken) {
-        boolean isValid = service.verifyResetCode(email, resetToken);
+        boolean isValid = service.verifyResetCode(email,resetToken);
         if (isValid) {
             return ResponseEntity.ok().body("Code verified successfully.");
         } else {
@@ -111,7 +111,6 @@ public ResponseEntity<AuthenticationResponse> register(
 
 
     @PostMapping("/authenticate")
-
     //@PreAuthorize("hasRole('ADMINSTRATOR') or hasRole('STUDENT') or hasRole('PROFESSOR')")
     public ResponseEntity<AuthenticationResponse> authenticate(
             @RequestBody AuthenticateRequest request

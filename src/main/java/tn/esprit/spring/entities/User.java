@@ -82,7 +82,7 @@ public class User implements UserDetails,Serializable {
 
     @Override
     public boolean isAccountNonLocked() {
-          return this.statue;
+          return true;
     }
 
     @Override
