@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import tn.esprit.spring.configuration.JwtService;
 import tn.esprit.spring.entities.User;
 
 import java.io.IOException;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -34,9 +36,42 @@ public class AuthenticationController {
         return ResponseEntity.ok(service.register(request));
     }
 */
+@PostMapping("/forgot-password")
+public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> payload) {
+    String email = payload.get("email");
+    boolean result = service.requestPasswordReset(email);
+    if (result) {
+        return ResponseEntity.ok().body("Reset password email sent.");
+    }
+    return ResponseEntity.badRequest().body("Email not found.");
+}
+   /* @RequestMapping(value = "/update-password-after-reset", method = RequestMethod.OPTIONS)
+    public HttpStatus handleOptionsRequest() {
+        // Autorisez les requêtes OPTIONS pour cette URL
+        return HttpStatus.OK;
+    }*/
+    @PostMapping("/update-password-after-reset")
+    public ResponseEntity<?> updateUserPassword(@RequestBody PasswordUpdateRequest  request) {
+        boolean updateStatus = service.updatePassword(request.getEmail(), request.getNewPassword());
+
+        if (updateStatus) {
+            return ResponseEntity.ok().body("Mot de passe mis à jour avec succès");
+        } else {
+            return ResponseEntity.badRequest().body("La mise à jour du mot de passe a échoué");
+        }
+
+    }
+    @PostMapping("/verify-reset-code")
+    public ResponseEntity<?> verifyResetCode(@RequestParam("email") String email, @RequestParam("resetToken") String resetToken) {
+        boolean isValid = service.verifyResetCode(email, resetToken);
+        if (isValid) {
+            return ResponseEntity.ok().body("Code verified successfully.");
+        } else {
+            return ResponseEntity.badRequest().body("Invalid code.");
+        }
+    }
 
 
-@PreAuthorize("hasRole('ADMINSTRATOR') or hasRole('STUDENT') or hasRole('PROFESSOR')")
 @PostMapping(value = "/register", consumes = "multipart/form-data")
 public ResponseEntity<AuthenticationResponse> register(
         @RequestPart("request") RegisterRequest request,
@@ -77,7 +112,7 @@ public ResponseEntity<AuthenticationResponse> register(
 
     @PostMapping("/authenticate")
 
-    @PreAuthorize("hasRole('ADMINSTRATOR') or hasRole('STUDENT') or hasRole('PROFESSOR')")
+    //@PreAuthorize("hasRole('ADMINSTRATOR') or hasRole('STUDENT') or hasRole('PROFESSOR')")
     public ResponseEntity<AuthenticationResponse> authenticate(
             @RequestBody AuthenticateRequest request
     ){

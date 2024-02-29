@@ -16,4 +16,5 @@ public interface IUserService {
     public void removeUser(String id);
     public User modifyUser(User updatedUser);
     public boolean requestPasswordReset(String email);
+    public boolean verifyResetCode(String email, String code);
 }

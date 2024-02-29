@@ -14,11 +14,14 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import tn.esprit.spring.services.EmailService;
 
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
+import java.util.Optional;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -27,8 +30,51 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final EmailService emailService;
 
+    public boolean requestPasswordReset(String email) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            Random random = new Random();
+            int code = 100000 + random.nextInt(900000);
+            String resetToken = "courzello-" + code;
+            user.setResetToken(resetToken);
+            userRepository.save(user);
+            String emailToBeSent = user.getEmail();
 
+            // Envoi de l'e-mail avec le lien de réinitialisation du mot de passe
+            try {
+                emailService.sendResetPasswordEmail("Password Reset Request", emailToBeSent, resetToken);
+                return true;
+            } catch (Exception e) {
+                // Gérer les erreurs d'envoi d'e-mail
+                e.printStackTrace();
+                return false;
+            }
+        }
+        return false;
+    }
+
+    public boolean verifyResetCode(String email, String code) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            return user.getResetToken().equals(code);
+        }
+        return false;
+    }
+
+    public boolean updatePassword(String email, String newPassword) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            user.setPassword(passwordEncoder.encode(newPassword)); // Encode le nouveau mot de passe
+            userRepository.save(user); // Sauvegarde les modifications dans la base de données
+            return true;
+        }
+        return false;
+    }
 
     /*public AuthenticationResponse register(RegisterRequest request) {
 

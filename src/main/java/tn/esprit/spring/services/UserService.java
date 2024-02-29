@@ -10,8 +10,10 @@ import tn.esprit.spring.repositories.UserRepository;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -48,21 +50,44 @@ private  final  EmailService emailService;
     public boolean requestPasswordReset(String email) {
         Optional<User> userOptional = userRepository.findByEmail(email);
         if (userOptional.isPresent()) {
-            User user = userOptional.get();
+          /*  User user = userOptional.get();
             String resetToken = UUID.randomUUID().toString();
+            user.setResetToken(resetToken);*/
+            // Génération d'un code de 6 chiffres
+            User user = userOptional.get();
+            Random random = new Random();
+            int code = 100000 + random.nextInt(900000);
+            // Concaténation avec "courzello-"
+            String resetToken = "courzello-" + code;
             user.setResetToken(resetToken);
+            LocalDateTime expirationTime = LocalDateTime.now().plusMinutes(5);
+            user.setResetTokenExpiration(expirationTime);
             userRepository.save(user);
+            String emailTobeSent =user.getEmail();
 
-            emailService.sendSimpleMessage(
-                    user.getEmail(),
-                    "Password Reset Request",
-                    "To reset your password, use this code: " + resetToken);
-            return true;
+            // Envoi de l'e-mail avec le lien de réinitialisation du mot de passe
+            try {
+                emailService.sendResetPasswordEmail("Password Reset Request",emailTobeSent, resetToken);
+
+                return true;
+            } catch (Exception e) {
+                // Gérer les erreurs d'envoi d'e-mail
+                e.printStackTrace();
+                return false;
+            }
         }
         return false;
     }
 
 
+    public boolean verifyResetCode(String email, String code) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            return user.getResetToken().equals(code);
+        }
+        return false;
+    }
 
     // Autres méthodes...
 

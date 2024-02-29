@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Getter
@@ -51,6 +52,9 @@ public class User implements UserDetails,Serializable {
     @Field(targetType = FieldType.STRING)
     Role role;
     String resetToken;
+
+    LocalDateTime ResetTokenExpiration;
+
 @JsonIgnore
    @DBRef
     Classe classe;
@@ -62,6 +66,7 @@ public class User implements UserDetails,Serializable {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // Convertir le rôle de l'utilisateur en GrantedAuthority
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + this.role.name()));
+
     }
 
     @Override

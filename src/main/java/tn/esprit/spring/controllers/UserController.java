@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -82,17 +83,40 @@ public class UserController {
     }
 
 
-
+/*
     @PostMapping("/forgot-password")
-    public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
-        boolean result = userService.requestPasswordReset(request.get("email"));
+    public ResponseEntity<String> forgotPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        boolean result = userService.requestPasswordReset(email);
+        if (result) {
+            return ResponseEntity.ok().body("Reset password email sent.");
+        } else {
+            return ResponseEntity.badRequest().body("Email not found.");
+        }
+    }
+*/
+@PreAuthorize("hasRole('ADMINSTRATOR') or hasRole('STUDENT') or hasRole('PROFESSOR')")
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestParam("email") String email) {
+        System.out.println("Email received: " + email); // Ajouter cette ligne pour déboguer
+        boolean result = userService.requestPasswordReset(email);
         if (result) {
             return ResponseEntity.ok().body("Reset password email sent.");
         }
         return ResponseEntity.badRequest().body("Email not found.");
     }
+    @PreAuthorize("hasRole('ADMINSTRATOR') or hasRole('STUDENT') or hasRole('PROFESSOR')")
+    @PostMapping("/verify-reset-code")
+    public ResponseEntity<?> verifyResetCode(@RequestParam("email") String email,@RequestParam("code") String code) {
+        boolean isValid = userService.verifyResetCode(email,code);
+        if (isValid) {
+            return ResponseEntity.ok().body("Code verified successfully.");
+        } else {
+            return ResponseEntity.badRequest().body("Invalid code.");
+        }
+    }
 
-@PostMapping(value = "/add", consumes = {"multipart/form-data"})
+    @PostMapping(value = "/add", consumes = {"multipart/form-data"})
 public ResponseEntity<?> addUser(
         @ModelAttribute @Valid User user,
         @RequestPart(value = "profilePicture", required = false) MultipartFile file,
