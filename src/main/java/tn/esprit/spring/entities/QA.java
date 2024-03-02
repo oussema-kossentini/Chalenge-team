@@ -20,11 +20,13 @@ public class QA implements Serializable {
 
     String idQa;
     String question;
-    @Field
-    private List<String> response;
+
     @Field(targetType = FieldType.STRING)
 
     Categorie categorie;
+    @Field("response")
+    private List<String> response;
+
     @DBRef
     Evaluation evaluation;
 
