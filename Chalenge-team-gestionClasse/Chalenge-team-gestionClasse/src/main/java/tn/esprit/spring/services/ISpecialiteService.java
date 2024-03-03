@@ -1,6 +1,5 @@
 package tn.esprit.spring.services;
 
-import tn.esprit.spring.dto.SpecialiteDto;
 import tn.esprit.spring.entities.Classe;
 import tn.esprit.spring.entities.Specialite;
 import tn.esprit.spring.entities.Subject;
@@ -17,8 +16,6 @@ public interface ISpecialiteService {
     public List<Classe> getSpecialiteById2(String idSpecialite);
     public Map<String, Float> statEtudiantParSpecialite();
     public Map<String, Float> statProfesseurParSpecialite();
-    public List<String> getAllTitles();
-    public List<SpecialiteDto> getSpecialiteAndClasseFromProfesseur(String idUser);
 
 
 }
