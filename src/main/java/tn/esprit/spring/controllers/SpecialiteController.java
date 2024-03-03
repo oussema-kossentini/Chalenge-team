@@ -64,12 +64,12 @@ public class SpecialiteController {
     }
 
     @GetMapping("/statEtudiantParSpecialite")
-    public Map<String, Integer> statEtudiantParSpecialite(){
+    public Map<String, Float> statEtudiantParSpecialite(){
         return specialiteService.statEtudiantParSpecialite();
     }
 
     @GetMapping("/statProfesseurParSpecialite")
-    public Map<String, Integer> statProfesseurParSpecialite(){
+    public Map<String, Float> statProfesseurParSpecialite(){
         return specialiteService.statProfesseurParSpecialite();
     }
     }

@@ -64,7 +64,7 @@ public class SpecialiteService implements ISpecialiteService{
 
     //Statistique Etudiant par specialite
     @Override
-    public Map<String, Integer> statEtudiantParSpecialite() {
+    public Map<String, Float> statEtudiantParSpecialite() {
 
         Integer nombreEtudiant=0;
         float pourcentage=0;
@@ -119,21 +119,23 @@ public class SpecialiteService implements ISpecialiteService{
 
         }
 
+        Map<String,Float> etudiantparSpec = new HashMap<>();
 
 
         for (Map.Entry<String, Integer> entry : MapEtudiantParSpecialite.entrySet()) {
             String key = entry.getKey();
             Integer nbrEPS = entry.getValue();
             pourcentage = (nbrEPS.floatValue()/ nombreEtudiant.floatValue()) * 100 ;
+            etudiantparSpec.put(key,pourcentage);
             System.out.println("Specialite:"+key+" Pourcentage : "+pourcentage+"%");
 
         }
 
-        return MapEtudiantParSpecialite;
+        return etudiantparSpec;
     }
 
     @Override
-    public Map<String, Integer> statProfesseurParSpecialite() {
+    public Map<String, Float> statProfesseurParSpecialite() {
         Integer nombreProfesseur=0;
         float pourcentage=0;
 
@@ -180,8 +182,7 @@ public class SpecialiteService implements ISpecialiteService{
 
                                 if(test==false) { // kif teba false ma3neha mal9ahech donc yzidou
                                     usersParSpecialite.add(professeur);
-                                    usersParALLSpecialite.add(professeur);
-                                    usersParALLSpecialite2.add(professeur);
+                                    usersParALLSpecialite.add(professeur); // tlem les professeur eli fl specialites l kol
                                 }
 
 
@@ -190,44 +191,52 @@ public class SpecialiteService implements ISpecialiteService{
                         }
                 }
 
-
-
             MapProfesseurParSpecialite.put(specialite.getTitle(),usersParSpecialite.size());
 
         }
 
-
+// boucle fl all specialite hani fl war9a
         for (User professeurSpecialite1 : usersParALLSpecialite){
             int exist=0;
+            boolean test = false;
 
-            for (User professeurSpecialite2 : usersParALLSpecialite2){
-                if(professeurSpecialite2.getIdUser().toString().equals(professeurSpecialite1.getIdUser().toString())){
-                        usersParALLSpecialite2.remove(professeurSpecialite2);
-                    exist++;
+
+            for(User userVerifexist : usersParALLSpecialite2){
+                System.out.println(userVerifexist.getFirstName());
+                if(userVerifexist.getIdUser().toString().equals(professeurSpecialite1.getIdUser().toString())){
+                    test=true;
                 }
             }
-            if(exist>1){
-                exist--;
-                nombreProfesseur=nombreProfesseur+exist;
 
+            if(test==false) {
+                for (User professeurSpecialite2 : usersParALLSpecialite) {
+                    if (professeurSpecialite2.getIdUser().toString().equals(professeurSpecialite1.getIdUser().toString())) {
+                        usersParALLSpecialite2.add(professeurSpecialite2);
+                        exist++;
+                    }
+                }
+                if(exist>1){
+                    exist--;
+                    nombreProfesseur=nombreProfesseur+exist;
+
+                }
             }
+
         }
-
-
-
-
-        System.out.println(nombreProfesseur);
-
-
+        // eli hiya bch ta3tini porcentage bl fasel
+        Map<String,Float> professeurparSpec = new HashMap<>();
+//***********************************************************************************
         for (Map.Entry<String, Integer> entry : MapProfesseurParSpecialite.entrySet()) {
             String key = entry.getKey();
             Integer nbrEPS = entry.getValue();
             pourcentage = (nbrEPS.floatValue()/ nombreProfesseur.floatValue()) * 100 ;
+            professeurparSpec.put(key,pourcentage);
+
             System.out.println("Specialite:"+key+" Pourcentage : "+pourcentage+"%");
 
         }
 
-        return MapProfesseurParSpecialite;
+        return professeurparSpec;
     }
 
 

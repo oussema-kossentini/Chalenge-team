@@ -14,8 +14,8 @@ public interface ISpecialiteService {
     public Specialite modifySpecialite(Specialite bloc);
     public Specialite getSpecialiteById(String idSpecialite);
     public List<Classe> getSpecialiteById2(String idSpecialite);
-    public Map<String, Integer> statEtudiantParSpecialite();
-    public Map<String, Integer> statProfesseurParSpecialite();
+    public Map<String, Float> statEtudiantParSpecialite();
+    public Map<String, Float> statProfesseurParSpecialite();
 
 
 }
