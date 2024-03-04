@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import tn.esprit.spring.auth.AuthenticationResponse;
+import tn.esprit.spring.configuration.JwtService;
 import tn.esprit.spring.entities.User;
 import tn.esprit.spring.repositories.UserRepository;
 
@@ -11,10 +13,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -26,6 +25,8 @@ public class UserService implements IUserService {
 private  final  EmailService emailService;
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+    @Autowired
+    private JwtService jwtService;
     private final Path rootLocation = Paths.get("path/to/your/uploaded/images");
 
     public User addUserimage(User user, MultipartFile image) {
@@ -41,6 +42,13 @@ private  final  EmailService emailService;
         }
         String encodedPassword = passwordEncoder.encode(user.getPassword()); // Hacher le mot de passe
         user.setPassword(encodedPassword); // Définir le mot de passe haché
+        user.setStatue(true);
+        //definir le token
+
+        String jwtToken = jwtService.generateToken(new HashMap<>(), user);
+
+        // Construction de la réponses
+
         return userRepository.save(user); // Sauvegarde l'utilisateur avec l'image dans MongoDB
     }
 
@@ -113,6 +121,7 @@ private  final  EmailService emailService;
         userRepository.deleteById(id);
 
     }
+
 
     @Override
     public User modifyUser(User updatedUser) {

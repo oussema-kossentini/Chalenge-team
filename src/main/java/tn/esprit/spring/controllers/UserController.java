@@ -95,7 +95,7 @@ public class UserController {
         }
     }
 */
-@PreAuthorize("hasRole('ADMINSTRATOR') or hasRole('STUDENT') or hasRole('PROFESSOR')")
+//@PreAuthorize("hasRole('ADMINSTRATOR') or hasRole('STUDENT') or hasRole('PROFESSOR')")
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestParam("email") String email) {
         System.out.println("Email received: " + email); // Ajouter cette ligne pour déboguer
@@ -105,7 +105,7 @@ public class UserController {
         }
         return ResponseEntity.badRequest().body("Email not found.");
     }
-    @PreAuthorize("hasRole('ADMINSTRATOR') or hasRole('STUDENT') or hasRole('PROFESSOR')")
+   // @PreAuthorize("hasRole('ADMINSTRATOR') or hasRole('STUDENT') or hasRole('PROFESSOR')")
     @PostMapping("/verify-reset-code")
     public ResponseEntity<?> verifyResetCode(@RequestParam("email") String email,@RequestParam("code") String code) {
         boolean isValid = userService.verifyResetCode(email,code);
@@ -120,7 +120,7 @@ public class UserController {
 public ResponseEntity<?> addUser(
         @ModelAttribute @Valid User user,
         @RequestPart(value = "profilePicture", required = false) MultipartFile file,
-        @RequestParam("dateOfBirth") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dateOfBirth
+        @RequestParam(value = "dateOfBirth",required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date dateOfBirth
 ) {
     try {
         if (file != null && !file.isEmpty()) {
@@ -130,6 +130,7 @@ public ResponseEntity<?> addUser(
 
 
         User savedUser = userService.addUserimage(user,file );
+
         return ResponseEntity.ok(savedUser);
     } catch (IOException e) {
         // Capturez l'erreur et renvoyez un message d'erreur approprié
@@ -184,18 +185,22 @@ public ResponseEntity<?> addUser(
 */
 
 
-
+    @PreAuthorize("hasRole('ADMINSTRATOR')")
     @GetMapping("/retrieve-all-users")
     public List<User> getUsers() {
         return userService.retrieveAllUsers();
     }
 
-    @DeleteMapping("/remove-user/{user-id}")
+    /*@DeleteMapping("/remove-user/{user-id}")
     public ResponseEntity<Void> removeUser(@PathVariable("user-id") String userId) {
         userService.removeUser(userId);
         return ResponseEntity.ok().build();
+    }*/
+    @DeleteMapping("/remove-user/{userId}")
+    public void removeUser(@PathVariable("userId") String userId) {
+        userService.removeUser(userId);
     }
-
+    @PreAuthorize("hasRole('ADMINSTRATOR')")
     @PutMapping("/modify-user")
     public ResponseEntity<User> modifyUser(@RequestParam("user") String userJson,
                                            @RequestParam(value = "profilePicture", required = false) MultipartFile file) throws IOException {

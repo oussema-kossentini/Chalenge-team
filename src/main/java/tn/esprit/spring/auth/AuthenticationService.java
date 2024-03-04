@@ -7,6 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.spring.configuration.JwtService;
+import tn.esprit.spring.entities.Role;
 import tn.esprit.spring.entities.User;
 import tn.esprit.spring.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -173,17 +174,11 @@ public boolean verifyResetCode(String email, String code) {
                 .build();
     }*/
 
-    public AuthenticationResponse register(RegisterRequest request, MultipartFile image) throws IOException {
+    //lazem rakaha
+/*
+    public AuthenticationResponse register(RegisterRequest request) throws IOException {
         // Préparation de l'image
-        byte[] imageBytes = null;
-        if (image != null && !image.isEmpty()) {
-            try {
-                imageBytes = image.getBytes();
-            } catch (IOException e) {
-                // Il est généralement préférable de logger l'erreur et de lancer une exception spécifique à votre application
-                throw new IOException("Échec de l'enregistrement de l'image téléchargée", e);
-            }
-        }
+        byte[] profilePictureBytes = request.getProfilePicture();
 
         // Création de l'entité User
         User user = User.builder()
@@ -194,9 +189,10 @@ public boolean verifyResetCode(String email, String code) {
                 .dateOfBirth(request.getDateOfBirth())
                 .nationality(request.getNationality())
                 .phone(request.getPhone())
-              //  .statue(request.getStatue())
-                .profilePicture(imageBytes) // Utiliser imageBytes qui peut être null si aucune image n'est fournie
-                .role(request.getRole())
+                .statue(Boolean.TRUE)
+                .profilePicture(profilePictureBytes) // Utiliser imageBytes qui peut être null si aucune image n'est fournie
+              // .role(Role.valueOf("USER"))
+
                 .build();
 
         // Sauvegarde de l'utilisateur
@@ -210,7 +206,7 @@ public boolean verifyResetCode(String email, String code) {
                 .token(jwtToken)
                 .build();
     }
-
+*/
 
 
   /*  public AuthenticationResponse authenticate(AuthenticateRequest request) {
@@ -229,6 +225,27 @@ public boolean verifyResetCode(String email, String code) {
                 .build();
     }*/
 
+    public AuthenticationResponse addUserimage(User user, MultipartFile image) {
+        if (image != null && !image.isEmpty()) {
+            try {
+                byte[] imageBytes = image.getBytes(); // Tente de lire les bytes de l'image
+                user.setProfilePicture(imageBytes); // Stocke les bytes dans le champ profilePicture de l'utilisateur
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to store uploaded image", e);
+            }
+        }
+        String encodedPassword = passwordEncoder.encode(user.getPassword()); // Hacher le mot de passe
+        user.setPassword(encodedPassword); // Définir le mot de passe haché
+        user.setStatue(true);
+
+        userRepository.save(user); // Sauvegarde l'utilisateur avec l'image dans MongoDB
+
+        // Générer un token JWT pour l'utilisateur nouvellement créé
+        var jwtToken = jwtService.generateToken(new HashMap<>(), user);
+
+        // Retourner le token JWT dans la réponse
+        return AuthenticationResponse.builder().token(jwtToken).build();
+    }
 
         public AuthenticationResponse authenticate (AuthenticateRequest request){
             Authentication authentication = authenticationManager.authenticate(

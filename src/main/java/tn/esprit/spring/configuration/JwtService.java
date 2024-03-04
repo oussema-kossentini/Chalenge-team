@@ -7,6 +7,8 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.security.core.GrantedAuthority;
+import tn.esprit.spring.entities.User;
 
 import java.security.Key;
 import java.util.Date;
@@ -14,6 +16,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class JwtService {
@@ -37,7 +40,8 @@ public class JwtService {
     public boolean isTokenBlacklisted(String jwtToken) {
         return blacklistedTokens.contains(jwtToken);
     }
-    public String generateToken(
+ //token maghir role
+   /* public String generateToken(
             Map<String,Object> extraClaims,
             UserDetails userDetails
     ) {
@@ -49,7 +53,59 @@ public class JwtService {
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 *60 * 24))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
+    }*/
+
+//toke heda yemchi jawoui bahi
+    /*
+    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+        // Extract roles from UserDetails
+        String roles = userDetails.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
+        // Add roles to extraClaims
+        extraClaims.put("roles", roles);
+// Add user ID to extraClaims
+
+
+        return Jwts.builder()
+                .setClaims(extraClaims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }*/
+
+    //netfalsef
+
+    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+        // Extract roles from UserDetails
+        String roles = userDetails.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
+        // Add roles to extraClaims
+        extraClaims.put("roles", roles);
+
+        // Cast UserDetails to User
+        User user = (User) userDetails;
+
+        // Add user ID and email to extraClaims
+        extraClaims.put("userId", user.getId());
+        extraClaims.put("email", user.getUsername());
+
+        return Jwts.builder()
+                .setClaims(extraClaims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
+
     public boolean isTokenValid(String token ,UserDetails userDetails) {
 
         if (isTokenBlacklisted(token)) {

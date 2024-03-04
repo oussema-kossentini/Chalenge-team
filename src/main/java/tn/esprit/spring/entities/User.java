@@ -38,10 +38,10 @@ public class User implements UserDetails,Serializable {
     // @Field(targetType = FieldType.BINARY)
 
 
-@JsonIgnore
+
    byte[] profilePicture;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    Date dateOfBirth;
+    String dateOfBirth;
     //photo de profile
 
 
@@ -65,7 +65,7 @@ public class User implements UserDetails,Serializable {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // Convertir le rôle de l'utilisateur en GrantedAuthority
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + this.role.name()));
+        return Collections.singletonList(new SimpleGrantedAuthority(this.role.name()));
 
     }
 
@@ -82,7 +82,7 @@ public class User implements UserDetails,Serializable {
 
     @Override
     public boolean isAccountNonLocked() {
-          return true;
+          return statue;
     }
 
     @Override
@@ -92,6 +92,18 @@ public class User implements UserDetails,Serializable {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return statue;
+    }
+
+    public String getId() {
+        return this.idUser;
+    }
+
+    public void setRole(String role) {
+        if (role == null || role.trim().isEmpty()) {
+            this.role = Role.USER; // Supposez que vous avez une valeur DEFAULT dans votre énumération Role
+        } else {
+            this.role = Role.valueOf(role.toUpperCase(Locale.ROOT));
+        }
     }
 }
