@@ -6,7 +6,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -26,7 +26,7 @@ public class Classe implements Serializable {
     String domaine;
     Date universityDate;
     @DBRef
-    private Set<User> users;
+    private Specialite specialite;
 
     @DBRef
     private Set<Subject> subjects;

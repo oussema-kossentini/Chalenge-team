@@ -18,7 +18,7 @@ import java.util.List;
 @RequestMapping("api/qa")
 public class QaController {
     IQAService iqaService;
-    @PostMapping("add/qa ")
+    @PostMapping("/add")
     public QA addqa(@RequestBody QA qa){
    return iqaService.addQA(qa);
     }

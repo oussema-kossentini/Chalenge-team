@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.aggregation.DateOperators;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-
+import javax.persistence.ManyToOne;
 import java.io.Serializable;
 import java.time.LocalTime;
 
