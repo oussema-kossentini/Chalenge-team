@@ -65,7 +65,7 @@ public class SpecialiteService implements ISpecialiteService{
     //Statistique Etudiant par specialite
     @Override
     public Map<String, Float> statEtudiantParSpecialite() {
-
+/*
         Integer nombreEtudiant=0;
         float pourcentage=0;
 
@@ -132,10 +132,64 @@ public class SpecialiteService implements ISpecialiteService{
         }
 
         return etudiantparSpec;
+
+ */
+        Integer nombreEtudiant = 0;
+
+        // Efficiently track if a user has already been considered
+        Set<String> addedUserIds = new HashSet<>();
+
+        // Count total number of students
+        for (User etudiant : userRepository.findAll()) {
+            if (etudiant != null && etudiant.getRole() != null && etudiant.getRole().toString().equals("STUDENT")) {
+                nombreEtudiant++;
+            }
+        }
+
+        Map<String, Integer> mapEtudiantParSpecialite = new HashMap<>();
+
+        for (Specialite specialite : specialiteRepository.findAll()) {
+
+            List<User> usersParSpecialite = new ArrayList<>();
+            List<Classe> classes = new ArrayList<>();
+
+            for (String Idclasse : specialite.getClassesIds()) {
+                Classe classe = classeRepository.findById(Idclasse).orElse(null);
+                if (classe != null) {
+                    classes.add(classe);
+                }
+            }
+
+            for (Classe classe : classes) {
+                for (String idUser : classe.getUsersIds()) {
+                    User etudiant = userRepository.findById(idUser).orElse(null);
+                    if (etudiant != null && etudiant.getRole() == Role.STUDENT && !addedUserIds.contains(etudiant.getIdUser())) {
+                        usersParSpecialite.add(etudiant);
+                        addedUserIds.add(etudiant.getIdUser().toString());
+                    }
+                }
+            }
+
+            mapEtudiantParSpecialite.put(specialite.getTitle(), usersParSpecialite.size());
+        }
+
+        Map<String, Float> etudiantParSpec = new HashMap<>();
+
+        for (Map.Entry<String, Integer> entry : mapEtudiantParSpecialite.entrySet()) {
+            String key = entry.getKey();
+            Integer nbrEPS = entry.getValue();
+            float pourcentage = (nbrEPS.floatValue() / nombreEtudiant.floatValue()) * 100;
+            etudiantParSpec.put(key, pourcentage);
+            System.out.println("Specialite:" + key + " Pourcentage : " + pourcentage + "%");
+        }
+
+        return etudiantParSpec;
     }
+
 
     @Override
     public Map<String, Float> statProfesseurParSpecialite() {
+        /*
         Integer nombreProfesseur=0;
         float pourcentage=0;
 
@@ -169,8 +223,8 @@ public class SpecialiteService implements ISpecialiteService{
 
                         for (String idUser : Classe.getUsersIds()){
                             User professeur = userRepository.findById(idUser).orElse(null);
-                            if(professeur.getRole().equals(Role.PROFESSOR)){
-
+                           // if(professeur.getRole().equals(Role.PROFESSOR)){
+                            if (professeur.getRole() != null && professeur.getRole().equals(Role.PROFESSOR)){
                                 boolean test=false;
 
                                 for (User user : usersParSpecialite){
@@ -237,6 +291,95 @@ public class SpecialiteService implements ISpecialiteService{
         }
 
         return professeurparSpec;
+
+         */
+        Integer nombreProfesseur = 0;
+        float pourcentage = 0;
+
+        // Get All student ROLE nombre totale Student
+        for (User professeur : userRepository.findAll()) {
+            if (professeur != null && professeur.getRole() != null && professeur.getRole().equals(Role.PROFESSOR)) {
+                nombreProfesseur++;
+            }
+        }
+
+        Map<String, Integer> MapProfesseurParSpecialite = new HashMap<>();
+        List<User> usersParALLSpecialite = new ArrayList<>();
+        List<User> usersParALLSpecialite2 = new ArrayList<>();
+
+        for (Specialite specialite : specialiteRepository.findAll()) {
+            List<User> usersParSpecialite = new ArrayList<>();
+            List<Classe> classes = new ArrayList<>();
+
+            for (String Idclasse : specialite.getClassesIds()) {
+                Classe classe = classeRepository.findById(Idclasse).orElse(null);
+                if (classe != null) {
+                    classes.add(classe);
+                }
+            }
+
+            for (Classe Classe : classes) {
+                if (Classe != null) {
+                    for (String idUser : Classe.getUsersIds()) {
+                        User professeur = userRepository.findById(idUser).orElse(null);
+                        if (professeur != null && professeur.getRole() != null && professeur.getRole().equals(Role.PROFESSOR)) {
+                            boolean test = false;
+                            for (User user : usersParSpecialite) {
+                                if (user != null && user.getIdUser().toString().equals(professeur.getIdUser())) {
+                                    test = true;
+                                    break;
+                                }
+                            }
+
+                            if (!test) {
+                                usersParSpecialite.add(professeur);
+                                usersParALLSpecialite.add(professeur);
+                            }
+                        }
+                    }
+                }
+            }
+
+            MapProfesseurParSpecialite.put(specialite.getTitle(), usersParSpecialite.size());
+        }
+
+        for (User professeurSpecialite1 : usersParALLSpecialite) {
+            int exist = 0;
+            boolean test = false;
+
+            for (User userVerifexist : usersParALLSpecialite2) {
+                if (userVerifexist != null && professeurSpecialite1 != null && userVerifexist.getIdUser().toString().equals(professeurSpecialite1.getIdUser().toString())) {
+                    test = true;
+                    break;
+                }
+            }
+
+            if (!test) {
+                for (User professeurSpecialite2 : usersParALLSpecialite) {
+                    if (professeurSpecialite2 != null && professeurSpecialite1 != null && professeurSpecialite2.getIdUser().toString().equals(professeurSpecialite1.getIdUser().toString())) {
+                        usersParALLSpecialite2.add(professeurSpecialite2);
+                        exist++;
+                    }
+                }
+                if (exist > 1) {
+                    exist--;
+                    nombreProfesseur += exist;
+                }
+            }
+        }
+
+        Map<String, Float> professeurparSpec = new HashMap<>();
+
+        for (Map.Entry<String, Integer> entry : MapProfesseurParSpecialite.entrySet()) {
+            String key = entry.getKey();
+            Integer nbrEPS = entry.getValue();
+            pourcentage = (nbrEPS.floatValue() / nombreProfesseur.floatValue()) * 100;
+            professeurparSpec.put(key, pourcentage);
+
+            System.out.println("Specialite:" + key + " Pourcentage : " + pourcentage + "%");
+        }
+
+        return professeurparSpec;
     }
 
 
@@ -255,4 +398,9 @@ public class SpecialiteService implements ISpecialiteService{
 
         //return savedClasse;
    // }
+
+
+    public List<String> getAllTitles() {
+        return specialiteRepository.findAll().stream().map(specialite -> specialite.getTitle()).toList();
+    }
 }
