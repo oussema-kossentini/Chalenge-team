@@ -14,6 +14,7 @@ public interface IClasseService {
     public Classe getClasseById(String idClasse);
     Classe ajouterFoyerEtAffecterAUniversite (Classe classe, String idSpecialite) ;
     List<Classe> retrievePostsByidUser( String idSpecialite );
+    //public void removeUserFromAllClasses(String idUser);
 
     List<User> getEtudiantFromClass(String idClasse);
     List<User> getProfessorFromClass(String idClasse);
@@ -22,6 +23,9 @@ public interface IClasseService {
 
     List<User> getEtudiant();
      List<User> getEnsignat();
+
+    public void deleteClasseAndSpecialiteAssociation(String idClasse);
+
 
 
 }

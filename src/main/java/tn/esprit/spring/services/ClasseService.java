@@ -1,8 +1,19 @@
 package tn.esprit.spring.services;
 
+
+import com.twilio.Twilio;
+import com.twilio.rest.api.v2010.account.Message;
+import com.twilio.type.PhoneNumber;
+
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.twilio.type.PhoneNumber;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Service;
+import tn.esprit.spring.Config.TwilioConfig;
 import tn.esprit.spring.entities.Classe;
 import tn.esprit.spring.entities.Role;
 import tn.esprit.spring.entities.Specialite;
@@ -12,6 +23,8 @@ import tn.esprit.spring.repositories.SpecialiteRepository;
 import tn.esprit.spring.repositories.UserRepository;
 
 import javax.persistence.EntityNotFoundException;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,6 +42,11 @@ public class ClasseService implements IClasseService {
 
     @Autowired
     private SpecialiteRepository specialiteRepository;
+
+
+    @Autowired
+    TwilioConfig twilioConfig;
+
     @Override
     public Classe addClasse(Classe classe) {
         return classeRepository.save(classe);
@@ -54,7 +72,7 @@ public class ClasseService implements IClasseService {
         return classeRepository.findById(idClasse).get();
     }
 
-    @Override 
+    @Override
     public Classe ajouterFoyerEtAffecterAUniversite(Classe classe, String idSpecialite) {
         // Sauvegarde de l'objet Classe
         Classe savedClasse = classeRepository.save(classe);
@@ -76,6 +94,26 @@ public class ClasseService implements IClasseService {
         System.out.println("Classe mise à jour avec la spécialité : " + savedClasse);
 
         return savedClasse;
+    }
+
+
+    @Override
+    public void deleteClasseAndSpecialiteAssociation(String idClasse) {
+        // Retrieve the class by its ID
+        Classe classe = classeRepository.findById(idClasse)
+                .orElseThrow(() -> new RuntimeException("Classe not found with id: " + idClasse));
+
+        // Retrieve the associated speciality
+        Specialite specialite = classe.getSpecialite();
+
+        // Remove the class ID from the associated speciality
+        specialite.getClassesIds().remove(idClasse);
+
+        // Save the updated speciality
+        specialiteRepository.save(specialite);
+
+        // Delete the class
+        classeRepository.delete(classe);
     }
 
 
@@ -103,37 +141,16 @@ public class ClasseService implements IClasseService {
 
 
     @Override
-    public List<User> getEtudiantFromClass(String idClasse){
+    public List<User> getEtudiantFromClass(String idClasse) {
         Classe classe = classeRepository.findById(idClasse).orElse(null);
         List<User> users = new ArrayList<>();
 
 
-        if(classe!= null){
-            for(String idUser : classe.getUsersIds()){
+        if (classe != null) {
+            for (String idUser : classe.getUsersIds()) {
                 User user = userRepository.findById(idUser).orElse(null);
-                if(user!=null){
-                    if(user.getRole().equals(Role.STUDENT))
-                    users.add(user);
-                }
-
-            }
-        }
-
-
-        return  users;
-    }
-
-    @Override
-    public List<User> getProfessorFromClass(String idClasse){
-        Classe classe = classeRepository.findById(idClasse).orElse(null);
-        List<User> users = new ArrayList<>();
-
-
-        if(classe!= null){
-            for(String idUser : classe.getUsersIds()){
-                User user = userRepository.findById(idUser).orElse(null);
-                if(user!=null){
-                    if(user.getRole().equals(Role.PROFESSOR))
+                if (user != null) {
+                    if (user.getRole().equals(Role.STUDENT))
                         users.add(user);
                 }
 
@@ -141,50 +158,79 @@ public class ClasseService implements IClasseService {
         }
 
 
-        return  users;
+        return users;
+    }
+
+    @Override
+    public List<User> getProfessorFromClass(String idClasse) {
+        Classe classe = classeRepository.findById(idClasse).orElse(null);
+        List<User> users = new ArrayList<>();
+
+
+        if (classe != null) {
+            for (String idUser : classe.getUsersIds()) {
+                User user = userRepository.findById(idUser).orElse(null);
+                if (user != null) {
+                    if (user.getRole().equals(Role.PROFESSOR))
+                        users.add(user);
+                }
+
+            }
+        }
+
+
+        return users;
     }
 
     @Override
     public Classe affecterUserInClass(String idUser, String idClasse) {
         Classe classe = classeRepository.findById(idClasse).orElse(null);
         User user = userRepository.findById(idUser).orElse(null);
-        if(classe!= null && user!=null){
+        if (classe != null && user != null) {
             classe.getUsersIds().add(idUser);
+
+            PhoneNumber to = new PhoneNumber("+21620954080");
+            PhoneNumber from = new PhoneNumber(twilioConfig.getTrialNumber());
+            String m="Dear M/Ms "+user.getFirstName()+"\nAFFECT IN "+classe.getNameClasse()+","+classe.getSpecialite().getTitle();
+            //Message message = Message.creator(to,from,m).create();
+
             return classeRepository.save(classe);
         }
         return null;
     }
+    //**************************************************************
 
 
-    @Override
-    public List<User> getEtudiant(){
-        List<User> users = new ArrayList<>();
-
-            for(User user : userRepository.findAll()){
-              if(user.getRole().equals(Role.STUDENT))
-                        users.add(user);
-
-        }
-
-
-        return  users;
-    }
 
     @Override
-    public List<User> getEnsignat(){
+    public List<User> getEtudiant() {
         List<User> users = new ArrayList<>();
 
-        for(User user : userRepository.findAll()){
-            if(user.getRole().equals(Role.PROFESSOR))
+        for (User user : userRepository.findAll()) {
+            if (user.getRole().equals(Role.STUDENT))
                 users.add(user);
 
         }
 
 
-        return  users;
+        return users;
     }
 
+    @Override
+    public List<User> getEnsignat() {
+        List<User> users = new ArrayList<>();
 
-}
+        for (User user : userRepository.findAll()) {
+            if (user.getRole().equals(Role.PROFESSOR))
+                users.add(user);
+
+        }
 
 
+        return users;
+    }
+    //***********************************************************************
+
+
+
+    }

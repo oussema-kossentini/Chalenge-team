@@ -16,6 +16,7 @@ public interface ISpecialiteService {
     public List<Classe> getSpecialiteById2(String idSpecialite);
     public Map<String, Float> statEtudiantParSpecialite();
     public Map<String, Float> statProfesseurParSpecialite();
+    public List<String> getAllTitles();
 
 
 }

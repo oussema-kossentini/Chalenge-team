@@ -72,4 +72,9 @@ public class SpecialiteController {
     public Map<String, Float> statProfesseurParSpecialite(){
         return specialiteService.statProfesseurParSpecialite();
     }
+
+    @GetMapping("/titles")
+    public List<String> getAllTitles() {
+        return specialiteService.getAllTitles();
+    }
     }
