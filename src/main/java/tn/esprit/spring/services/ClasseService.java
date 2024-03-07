@@ -16,7 +16,6 @@ public class ClasseService implements IClasseService{
     public Classe addClasse(Classe classe) {
         return classeRepository.save(classe);
     }
-
     @Override
     public List<Classe> retrieveAllClasses() {
         return classeRepository.findAll();
