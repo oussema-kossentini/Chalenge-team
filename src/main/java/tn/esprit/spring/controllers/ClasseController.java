@@ -22,7 +22,6 @@ public class ClasseController {
     IClasseService classeService;
     @PostMapping("add/classe")
     public Classe addinClasse(@RequestBody Classe us){
-
         return classeService.addClasse(us);
     }
     @GetMapping("/retrieve-all-classes")

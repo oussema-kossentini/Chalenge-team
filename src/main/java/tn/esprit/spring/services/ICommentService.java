@@ -7,29 +7,7 @@ import java.util.List;
 
 public interface ICommentService {
     Comment addComment(Comment comment);
-
     public List<Comment> retrieveAllComments();
-
     public void removeComment(String id);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public Comment modifyComment(Comment bloc);
-
-    public Comment addCommentToPublication(String publicationId, Comment comment);
-    public List<Comment> getCommentsForPublication(String publicationId);
 }

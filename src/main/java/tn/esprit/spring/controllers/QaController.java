@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.spring.entities.QA;
 import tn.esprit.spring.entities.Scheduel;
@@ -15,12 +16,13 @@ import java.util.List;
 @AllArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@CrossOrigin(origins = "http://localhost:4200/**")
 @RequestMapping("api/qa")
 public class QaController {
     IQAService iqaService;
     @PostMapping("/add")
-    public QA addqa(@RequestBody QA qa){
-   return iqaService.addQA(qa);
+    public ResponseEntity<QA> addqa(@RequestBody QA qa){
+   return ResponseEntity.ok(iqaService.addQA(qa));
     }
     @GetMapping("/retrieve-all-qa")
     public List<QA> getQas() {
@@ -35,6 +37,13 @@ public class QaController {
     public QA modifyQa(@PathVariable String id,@RequestBody QA c) {
         c.setIdQa(id);
         return iqaService.addQA(c);
-
+    }
+    @PutMapping("assign-QA-Evaluation/{qaId}/{evaluationId}")
+    public void assignToQaToEvaluation(@PathVariable("qaId")String qaId,@PathVariable("evaluationId") String evaluationId){
+        this.iqaService.assignQaToEvaluation(qaId,evaluationId);
+    }
+    @GetMapping("getQaByEvaluationId/{evaluationId}")
+    public ResponseEntity<List<QA>>getQaByEvaluationId(@PathVariable String evaluationId){
+        return ResponseEntity.ok(this.iqaService.getQaByEvaluationId(evaluationId));
     }
 }

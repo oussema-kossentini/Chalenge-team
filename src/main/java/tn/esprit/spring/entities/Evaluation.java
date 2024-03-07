@@ -21,7 +21,6 @@ import java.util.List;
 @NoArgsConstructor
 @Document
 @FieldDefaults(level = AccessLevel.PRIVATE)
-
 public class Evaluation implements Serializable {
     @Id
     String idEvaluation;
@@ -32,7 +31,10 @@ public class Evaluation implements Serializable {
     Date startDate;
     Date endDate;
     boolean statue;
-    Duration duration;
+    long duration ;
+    @Field(targetType = FieldType.STRING)
+    Categorie categorie;
+    boolean accessible =true;
     @DBRef
     Classe classe;
     @DBRef
