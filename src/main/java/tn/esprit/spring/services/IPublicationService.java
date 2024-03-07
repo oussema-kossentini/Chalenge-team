@@ -13,4 +13,6 @@ public interface IPublicationService {
     public void removePublication(String id);
     public Publication modifyPublication(Publication publication);
     public Publication getPublicationById(String idPublication);
+    public List<Publication> searchPublicationsByTitle(String title);
+    public void sharePublication(String publicationId) ;
 }

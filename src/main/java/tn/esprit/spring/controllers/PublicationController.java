@@ -155,8 +155,36 @@ public class PublicationController {
         return publicationService.getPublicationById(idPublication);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<Publication>> searchPublicationsByTitle(@RequestParam(required = false) String title) {
+        List<Publication> publications = publicationService.searchPublicationsByTitle(title);
+        return ResponseEntity.ok().body(publications);
+    }
+
+    @PostMapping(value = "/share/{publication-id}")
+    public ResponseEntity<?> sharePublication(@PathVariable("publication-id") String publicationId) {
+        try {
+            // Récupérer la publication à partager en utilisant son identifiant
+            Publication publication = publicationService.getPublicationById(publicationId);
+
+            // Vérifier si la publication existe
+            if (publication == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Publication not found");
+            }
+
+            // Appeler la méthode sharePublication du service de publication
+            publicationService.sharePublication(publicationId);
+
+            return ResponseEntity.status(HttpStatus.OK). body("ok");
+        } catch (Exception e) {
+            log.error("Error sharing publication", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to share publication");
+        }
+    }
+
 
 }
+
 
 
 

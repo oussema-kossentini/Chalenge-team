@@ -35,6 +35,7 @@ String title;
     private Date creationDate;
     int likes;
     String fileName;
+    private int shareCount; // Nombre de fois que la publication a été partagée
 
 
     @DBRef

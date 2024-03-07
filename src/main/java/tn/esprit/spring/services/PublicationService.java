@@ -9,7 +9,9 @@ import tn.esprit.spring.entities.Publication;
 import tn.esprit.spring.repositories.PublicationRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -56,7 +58,35 @@ public class PublicationService implements IPublicationService {
     @Override
     public Publication getPublicationById(String idPublication) {
         return publicationRepository.findById(idPublication).get();
+
     }
 
+    @Override
+    public List<Publication> searchPublicationsByTitle(String title) {
+        List<Publication> publications = retrieveAllPublications();
+
+        // Si un titre est fourni, filtrer les publications en fonction du titre
+        if (title != null && !title.isEmpty()) {
+            publications = publications.stream()
+                    .filter(publication -> publication.getTitle().toLowerCase().contains(title.toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+
+        return publications;
+
+    }
+
+    @Override
+    public void sharePublication(String publicationId) {
+        Optional<Publication> optionalPublication = publicationRepository.findById(publicationId);
+        if (optionalPublication.isPresent()) {
+            Publication publication = optionalPublication.get();
+            // Incrémenter le nombre de partages
+            publication.setShareCount(publication.getShareCount() + 1);
+            // Mettre à jour la publication dans la base de données
+            publicationRepository.save(publication);
+        } else {
+        }
+    }
 
 }
