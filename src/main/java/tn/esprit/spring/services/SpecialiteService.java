@@ -3,6 +3,7 @@ package tn.esprit.spring.services;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tn.esprit.spring.dto.SpecialiteDto;
 import tn.esprit.spring.entities.*;
 import tn.esprit.spring.repositories.ClasseRepository;
 import tn.esprit.spring.repositories.SpecialiteRepository;
@@ -135,7 +136,7 @@ public class SpecialiteService implements ISpecialiteService{
 
  */
         Integer nombreEtudiant = 0;
-
+        //float pourcentage=0;
         // Efficiently track if a user has already been considered
         Set<String> addedUserIds = new HashSet<>();
 
@@ -160,6 +161,7 @@ public class SpecialiteService implements ISpecialiteService{
                 }
             }
 
+            //hedhi mta3 etudiant
             for (Classe classe : classes) {
                 for (String idUser : classe.getUsersIds()) {
                     User etudiant = userRepository.findById(idUser).orElse(null);
@@ -326,14 +328,14 @@ public class SpecialiteService implements ISpecialiteService{
                             boolean test = false;
                             for (User user : usersParSpecialite) {
                                 if (user != null && user.getIdUser().toString().equals(professeur.getIdUser())) {
-                                    test = true;
+                                    test = true; // kif yel9ah deja mawjoud Y7ot true donc mayzidouch
                                     break;
                                 }
                             }
 
                             if (!test) {
-                                usersParSpecialite.add(professeur);
-                                usersParALLSpecialite.add(professeur);
+                                usersParSpecialite.add(professeur);// kif teba false ma3neha mal9ahech donc yzidou
+                                usersParALLSpecialite.add(professeur);// tlem les professeur eli fl specialites l kol
                             }
                         }
                     }
@@ -367,7 +369,8 @@ public class SpecialiteService implements ISpecialiteService{
                 }
             }
         }
-
+        // eli hiya bch ta3tini porcentage bl fasel
+//***********************************************************************************
         Map<String, Float> professeurparSpec = new HashMap<>();
 
         for (Map.Entry<String, Integer> entry : MapProfesseurParSpecialite.entrySet()) {
@@ -403,4 +406,99 @@ public class SpecialiteService implements ISpecialiteService{
     public List<String> getAllTitles() {
         return specialiteRepository.findAll().stream().map(specialite -> specialite.getTitle()).toList();
     }
+//affichage user yaaa ibtihelll fel nav
+    @Override
+    public String getUserNav(String idUser) {
+
+        List<Specialite> specialites = specialiteRepository.findAll();
+        String chaineReturn="";
+
+        for (Specialite specialite : specialites){
+            for (String idClasse : specialite.getClassesIds()){
+                Classe classe = classeRepository.findById(idClasse).orElse(null);
+
+                if(classe!= null) {
+                    for (String userId : classe.getUsersIds()) {
+                        if(userId.toString().equals(idUser.toString())){
+                            User user = userRepository.findById(userId).orElse(null);
+                            if(user != null){
+                                if(user.getRole().equals(Role.STUDENT)){
+
+                                    chaineReturn= user.getFirstName()+" "+user.getLastName()+" "+
+                                            classe.getLevel()+" "+
+                                    specialite.getTitle()+" "+classe.getNameClasse();
+
+                                }
+                                else if (user.getRole().equals(Role.PROFESSOR)){
+                                    return user.getFirstName()+" "+user.getLastName();
+                                }
+                            }
+
+
+                        }
+                    }
+                }
+
+            }
+
+
+        }
+
+        if (chaineReturn.length()!=0)
+            return chaineReturn;
+        //System.out.println("hello");
+        return "ADMIN";
+    }
+
+    @Override
+    public List<SpecialiteDto> getSpecialiteAndClasseFromProfesseur(String idUser) {
+        List<SpecialiteDto> specialiteDtos = new ArrayList<>();
+
+
+        for (Specialite specialite : specialiteRepository.findAll()){
+            // houni specialiter wa7dha
+            SpecialiteDto specialiteDto= new SpecialiteDto();
+
+            specialiteDto.setTitle(specialite.getTitle());
+            for (String idClasse : specialite.getClassesIds()){
+                Classe classe = classeRepository.findById(idClasse).orElse(null);
+
+                if(classe!=null){
+                    for (String userId : classe.getUsersIds()) {
+                        if (userId.toString().equals(idUser.toString())) {
+                            User user = userRepository.findById(userId).orElse(null);
+                            if (user != null) {
+                                if (user.getRole().equals(Role.PROFESSOR)) {
+
+                                    specialiteDto.getClasses().add(classe.getNameClasse());
+
+                                }
+                            }
+                        }
+                    }
+
+
+                }
+
+
+            }
+// donc if hedhi kan el prof 3andhou classet fi specialiter hedhikaa fi wost eli a3mathaaa specialiterDetos
+            if(specialiteDto.getClasses().size()>0){
+                System.out.println("Specilite : "+ specialiteDto.getTitle());
+                for (String classe : specialiteDto.getClasses()){
+                    System.out.println("Classe : " +classe);
+                }
+                specialiteDtos.add(specialiteDto);
+            }
+
+
+        }
+
+
+
+
+        return specialiteDtos;
+    }
+
+
 }
