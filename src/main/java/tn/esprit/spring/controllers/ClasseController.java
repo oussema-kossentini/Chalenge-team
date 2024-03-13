@@ -90,6 +90,7 @@ ClasseRepository classeRepository;
         return classeService.getClasseById(idClasse);
     }
 
+
     @PostMapping("ajouter-affecter/{idSpecialite}")
     Classe ajouterFoyerEtAffecterAUniversite (@RequestBody Classe classe, @PathVariable String idSpecialite){
         return classeService.ajouterFoyerEtAffecterAUniversite(classe,idSpecialite);
@@ -128,6 +129,7 @@ ClasseRepository classeRepository;
     public List<User> getEnseignat(){
         return classeService.getEnsignat();
     }
+
 
 
 
