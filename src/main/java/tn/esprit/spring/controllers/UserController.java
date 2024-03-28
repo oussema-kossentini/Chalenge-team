@@ -1,4 +1,5 @@
 package tn.esprit.spring.controllers;
+import org.apache.coyote.BadRequestException;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -200,8 +201,10 @@ public ResponseEntity<?> addUser(
     public void removeUser(@PathVariable("userId") String userId) {
         userService.removeUser(userId);
     }
-    @PreAuthorize("hasRole('ADMINSTRATOR')")
-    @PutMapping("/modify-user")
+
+
+   // @PreAuthorize("hasRole('ADMINSTRATOR')")
+   /* @PutMapping("/modify-user")
     public ResponseEntity<User> modifyUser(@RequestParam("user") String userJson,
                                            @RequestParam(value = "profilePicture", required = false) MultipartFile file) throws IOException {
         User user = objectMapper.readValue(userJson, User.class); // Convertit userJson en objet User
@@ -210,5 +213,48 @@ public ResponseEntity<?> addUser(
         }
         User updatedUser = userService.addUser(user); // Cette méthode pourrait nécessiter une logique distincte pour "mettre à jour" vs "ajouter"
         return ResponseEntity.ok(updatedUser);
-    }
+    }*/
+   @PutMapping("/modify-user/{idUser}")
+   public ResponseEntity<User> modifyUser(
+           @PathVariable("idUser") String idUser,
+           @RequestParam String userJson, // User details as JSON string
+           @RequestParam(value = "image", required = false) MultipartFile image
+   ) throws Exception {
+       try {
+           ObjectMapper mapper = new ObjectMapper();
+           User updatedUserDetails = mapper.readValue(userJson, User.class); // Parse JSON to User object
+
+           return userRepository.findById(idUser).map(existingUser -> {
+
+               try {
+                   // Update fields with new values
+                   existingUser.setFirstName(updatedUserDetails.getFirstName());
+                   existingUser.setLastName(updatedUserDetails.getLastName());
+                   // ... Update other fields as needed
+
+                   // Update profile picture if a new image is provided
+                   if (image != null && !image.isEmpty()) {
+                       byte[] imageBytes = image.getBytes();
+                       existingUser.setProfilePicture(imageBytes);
+                   }
+
+                   // Save changes to the database
+                   User savedUser = userRepository.save(existingUser);
+                   return ResponseEntity.ok(savedUser); // Return updated user with 200 OK status
+
+               } catch (IOException e) {
+                   throw new RuntimeException("Error processing image", e);
+               }
+
+           }).orElseThrow(() -> new NoSuchElementException("User not found with ID " + idUser));
+
+       } catch (JsonProcessingException e) {
+           throw new Exception("Invalid user data format", e);
+       }
+   }
+
+
+
+
+
 }

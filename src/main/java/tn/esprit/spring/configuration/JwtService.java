@@ -1,22 +1,30 @@
 package tn.esprit.spring.configuration;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.GrantedAuthority;
 import tn.esprit.spring.entities.User;
 
 import java.security.Key;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureException;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Function;
 
 @Service
 public class JwtService {
@@ -30,6 +38,29 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
+    public String extractEmail(String token) {
+        return extractClaim(token, claims -> claims.get("email", String.class));
+    }
+
+
+    public boolean isLoggedInAndJwtValid(String jwtToken) {
+        if (isTokenBlacklisted(jwtToken)) {
+            return false; // Le token est invalide s'il est en liste noire
+        }
+
+        try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(SECRET_KEY.getBytes())
+                    .parseClaimsJws(jwtToken)
+                    .getBody();
+            Date expirationDate = claims.getExpiration();
+            return expirationDate.after(new Date()); // Vérifie si le token n'est pas expiré
+        } catch (SignatureException e) {
+            return false; // Le token est invalide pour une raison de signature
+        } catch (Exception e) {
+            return false; // Le token est invalide pour une autre raison
+        }
+    }
 
     private Set<String> blacklistedTokens = new HashSet<>();
 
@@ -96,7 +127,15 @@ public class JwtService {
         // Add user ID and email to extraClaims
         extraClaims.put("userId", user.getId());
         extraClaims.put("email", user.getUsername());
+       // user fisrt name
+       extraClaims.put("lastName",user.getLastName());
+        extraClaims.put("firstName",user.getFirstName());
 
+     /*   String csrfToken = UUID.randomUUID().toString();
+
+// Ajouter la valeur CSRF dans le JWT
+        extraClaims.put("csrfToken", csrfToken);
+*/
         return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
@@ -105,6 +144,28 @@ public class JwtService {
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
+
+    public boolean verifyCsrfToken(String csrfTokenFromRequest, String jwtToken) {
+        try {
+            // Extraire le csrfToken du JWT en utilisant la même clé pour signer et vérifier le JWT
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(getSignInKey())
+                    .build()
+                    .parseClaimsJws(jwtToken)
+                    .getBody();
+
+            String csrfTokenInJwt = claims.get("csrfToken", String.class);
+
+            // Comparer les deux tokens
+            return csrfTokenFromRequest.equals(csrfTokenInJwt);
+        } catch (JwtException e) {
+            // Gérer l'exception si le JWT est invalide (signature incorrecte, expiré, etc.)
+            return false;
+        }
+    }
+
+
+
 
     public boolean isTokenValid(String token ,UserDetails userDetails) {
 
@@ -134,8 +195,12 @@ public class JwtService {
                 .getBody();
     }
 
+  /*  @Value("${jwt.secret}")
+    private String secretKey;*/
+
     private Key getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+      byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+       // byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }

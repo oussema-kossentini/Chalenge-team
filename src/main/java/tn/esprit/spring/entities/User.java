@@ -28,7 +28,7 @@ import java.util.*;
 
 public class User implements UserDetails,Serializable {
     @Id
-    @JsonIgnore
+    //@JsonIgnore
     String idUser;
     String firstName;
     String lastName;
@@ -52,7 +52,7 @@ public class User implements UserDetails,Serializable {
     @Field(targetType = FieldType.STRING)
     Role role;
     String resetToken;
-
+    Etat_DeConexion etatDeConexion;
     LocalDateTime ResetTokenExpiration;
 
 @JsonIgnore
@@ -68,6 +68,7 @@ public class User implements UserDetails,Serializable {
         return Collections.singletonList(new SimpleGrantedAuthority(this.role.name()));
 
     }
+    private  User user;
 
     @Override
     public String getUsername() {

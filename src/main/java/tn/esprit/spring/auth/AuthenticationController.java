@@ -5,29 +5,49 @@ import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import tn.esprit.spring.configuration.JwtService;
+import tn.esprit.spring.configuration.SecurityConfig;
 import tn.esprit.spring.courszelloback.MultipartFileToByteArrayConverter;
 import tn.esprit.spring.entities.Role;
 import tn.esprit.spring.entities.User;
+import tn.esprit.spring.auth.AuthenticationResponse;
+import tn.esprit.spring.repositories.UserRepository;
 
 import java.io.IOException;
+import java.security.Principal;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "http://localhost:4200")
 @RequiredArgsConstructor
 public class AuthenticationController {
-    private final AuthenticationService  service;
+    @Autowired
+    private  AuthenticationService  service;
 
-    private final  JwtService jwtService;
-  private   final ObjectMapper objectMapper; // Jackson's ObjectMapper
+    @Autowired
+    private   JwtService jwtService;
+    @Autowired
+  private    ObjectMapper objectMapper; // Jackson's ObjectMapper
 
 /*
     @PostMapping("/register")
@@ -74,54 +94,59 @@ public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> payload
     }
 
 
-/*@PostMapping(value = "/register", consumes = "multipart/form-data")
-public ResponseEntity<AuthenticationResponse> register(
-        @ModelAttribute @Valid  RegisterRequest request,
+    @Autowired
+    private GoogleAuthService googleAuthService;
 
-        @RequestPart(value = "profilePicture", required = false) MultipartFile image) throws IOException {
+   /* @PostMapping("/google")
+    public ResponseEntity<?> authenticateUserWithGoogle(@RequestBody Map<String, String> codePayload) {
+        String code = codePayload.get("code");
 
-    try {
-        if (image != null && !image.isEmpty()) {
-            byte[] profilePictureBytes = image.getBytes();
-            request.setProfilePicture(profilePictureBytes);
+        if(code!= null ){
+
+        System.out.println("code is recupered ");
         }
-
-    } catch (IOException e) {
-        throw new RuntimeException(e);
-    }
-
-
-    // Call your service to handle the registration logic
-    AuthenticationResponse response = service.register(request, image);
-
-    // Return the response entity
-    return ResponseEntity.ok(response);
-}*/
-    //kent t5dem
-    /*
-@PostMapping(value = "/register", consumes = "multipart/form-data")
-public ResponseEntity<AuthenticationResponse> register(
-        @ModelAttribute @Valid RegisterRequest request,
-        @RequestPart(value = "profilePicture", required = false) MultipartFile profilePicture) throws IOException {
-
-    if (profilePicture != null && !profilePicture.isEmpty()) {
+        if (code == null || code.isEmpty()) {
+            return ResponseEntity.badRequest().body("Code is missing");
+        }
         try {
-            // Convert MultipartFile to byte[] using your converter
-            byte[] profilePictureBytes = new MultipartFileToByteArrayConverter().convert(profilePicture);
-            request.setProfilePicture(profilePictureBytes);
+            User user = googleAuthService.processGoogleUser(code);
+            // Générez le JWT pour l'utilisateur (omis pour la brièveté)
+            var jwtToken = jwtService.generateToken(new HashMap<>(), user);
+
+            return ResponseEntity.ok(Map.of(
+                    "jwtToken", jwtToken,
+                    "user", user
+            ));
         } catch (Exception e) {
-            // Handle conversion error
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return ResponseEntity.badRequest().body("Failed to authenticate with Google");
+        }
+
+
+
+    }*/
+
+
+
+   /* @PostMapping("/google")
+    public ResponseEntity<?> authenticateUserWithGoogle(@RequestBody Map<String, String> payload) {
+        String code = payload.get("code");
+        if (code == null || code.isEmpty()) {
+            return ResponseEntity.badRequest().body("Le code est requis.");
+        }
+
+        try {
+            // Remplacez "YOUR_REDIRECT_URI" par l'URI de redirection configuré dans votre client OAuth2 Google
+            String jwtToken = service.exchangeCodeForUser(code, "http://localhost:4200/google-callback");
+            return ResponseEntity.ok(new AuthenticationResponse(jwtToken));
+        } catch (Exception e) {
+            // Gérer les exceptions spécifiques si nécessaire
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de l'échange du code: " + e.getMessage());
         }
     }
+*/
 
-    // Call your service to handle the registration logic
-    AuthenticationResponse response = service.register(request);
 
-    // Return the response entity
-    return ResponseEntity.ok(response);
-}*/
-@PostMapping(value = "/register", consumes = "multipart/form-data")
+    @PostMapping(value = "/register", consumes = "multipart/form-data")
 public ResponseEntity<AuthenticationResponse> register(
         @ModelAttribute @Valid RegisterRequest request,
         @RequestPart(value = "profilePicture", required = false) MultipartFile image) {
@@ -143,8 +168,8 @@ public ResponseEntity<AuthenticationResponse> register(
     // Return the response entity
     return ResponseEntity.ok(response);
 }
-
-    @PreAuthorize("hasRole('ADMINSTRATOR') or hasRole('STUDENT') or hasRole('PROFESSOR')")
+   // private static final Logger log = (Logger) LoggerFactory.getLogger(AuthenticationService.class);
+   // @PreAuthorize("hasRole('ADMINSTRATOR') or hasRole('STUDENT') or hasRole('PROFESSOR')")
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
         String authToken = request.getHeader("Authorization");
@@ -152,19 +177,91 @@ public ResponseEntity<AuthenticationResponse> register(
             String jwtToken = authToken.substring(7);
             // Appeler votre service pour ajouter le jeton à la liste noire
             jwtService.blacklistToken(jwtToken);
-            return ResponseEntity.ok().body("User logged out successfully");
+           // log.info("Token blacklisted, user logged out successfully");
+            return ResponseEntity.ok(Collections.singletonMap("message", "User logged out successfully"));
         } else {
-            return ResponseEntity.badRequest().body("Invalid Authorization header");
+            Map<String, String> responseBody = new HashMap<>();
+            responseBody.put("error", "Invalid Authorization header");
+            return ResponseEntity.badRequest().body(responseBody);
         }
     }
+@Autowired
+    UserRepository userRepository;
+    @PostMapping("/update-status")
+    public ResponseEntity<?> updateStatus(@RequestBody UpdateStatusRequest updateStatusRequest, @RequestHeader("Authorization") String authorizationHeader) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
 
+        // Extrait le token du header Authorization
+        String token = authorizationHeader.substring(7);
+        String email = jwtService.extractEmail(token);
 
-    @PostMapping("/authenticate")
+        // Utilisez l'email pour trouver l'utilisateur
+        Optional<User> userOptional = userRepository.findByEmail(email);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get(); // Obtenez l'utilisateur si présent
+            user.setEtatDeConexion(updateStatusRequest.getStatus()); // Mettez à jour l'état de l'utilisateur
+            userRepository.save(user); // Sauvegardez les changements
+            // Ajoutez un message personnalisé à la réponse
+            Map<String, String> response = new HashMap<>();
+            response.put("message","Le statut de connexion a été mis à jour avec succès.");
+            return ResponseEntity.ok(response);
+        }
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+    @GetMapping("/is-logged-in")
+    public ResponseEntity<Boolean> isLoggedInAndJwtValid(@RequestHeader("Authorization") String authorizationHeader) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);
+        }
+
+        String jwtToken = authorizationHeader.substring(7); // Retirez "Bearer " pour obtenir le JWT uniquement
+        boolean isTokenValid = jwtService.isLoggedInAndJwtValid(jwtToken); // Utilisez votre service pour vérifier la validité du token
+        if (isTokenValid) {
+            return ResponseEntity.ok(true);
+        } else {
+            return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);
+        }
+    }
+    @GetMapping("/user")
+    public ResponseEntity<?> getUser(@AuthenticationPrincipal OAuth2User principal) {
+        if (principal == null || principal.getAttributes().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        // Retourne les détails de l'utilisateur connecté
+        return ResponseEntity.ok(principal.getAttributes());
+    }
+
+    //jawha bahi ama lazem maaha 5idma
+   /* @PostMapping("/authenticate")
     //@PreAuthorize("hasRole('ADMINSTRATOR') or hasRole('STUDENT') or hasRole('PROFESSOR')")
     public ResponseEntity<AuthenticationResponse> authenticate(
             @RequestBody AuthenticateRequest request
     ){
+
         return ResponseEntity.ok(service.authenticate(request));
 
     }
+
+
+    */
+
+    @PostMapping("/authenticate")
+    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticateRequest request) {
+        // Appel au service pour effectuer l'authentification
+        try {
+            AuthenticationResponse response = service.authenticate(request);
+            return ResponseEntity.ok(response);
+        } catch (ResponseStatusException e) {
+            // Propagation de l'exception gérée dans le service
+            throw e;
+        }
+    }
+
 }
+
+
+

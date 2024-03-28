@@ -1,14 +1,32 @@
 package tn.esprit.spring.auth;
 
 
+import io.jsonwebtoken.JwtException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.http.*;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import tn.esprit.spring.configuration.JwtService;
 import tn.esprit.spring.entities.Role;
 import tn.esprit.spring.entities.User;
+import tn.esprit.spring.entities.UserOAuth2User;
 import tn.esprit.spring.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,9 +39,7 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -93,6 +109,9 @@ public boolean verifyResetCode(String email, String code) {
         }
         return false;
     }
+
+
+
 
     /*public AuthenticationResponse register(RegisterRequest request) {
 
@@ -247,6 +266,37 @@ public boolean verifyResetCode(String email, String code) {
         return AuthenticationResponse.builder().token(jwtToken).build();
     }
 
+    public AuthenticationResponse authenticate(AuthenticateRequest request) {
+        try {
+            // Vérifier d'abord si l'email existe dans la base de données
+            User user = userRepository.findByEmail(request.getEmail())
+                    .orElseThrow(() -> new UsernameNotFoundException("Email not found: " + request.getEmail()));
+
+            // Si l'email existe, procéder à l'authentification
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            // Générer le token JWT pour l'utilisateur authentifié
+            String jwtToken = jwtService.generateToken(new HashMap<>(), user);
+
+            // Construire et retourner la réponse
+            return new AuthenticationResponse(jwtToken, user.getFirstName(), user.getLastName(), user.getEmail());
+        } catch (UsernameNotFoundException e) {
+            // Gestion spécifique lorsque l'email n'est pas trouvé
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (BadCredentialsException e) {
+            // Gestion spécifique lorsque le mot de passe est invalide
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid password");
+        } catch (Exception e) {
+            // Gestion des autres erreurs
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Authentication failed");
+        }
+    }
+
+
+    //hedi te5dem jawha bahi
+/*
         public AuthenticationResponse authenticate (AuthenticateRequest request){
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -264,7 +314,84 @@ public boolean verifyResetCode(String email, String code) {
             var jwtToken = jwtService.generateToken(new HashMap<>(), user);
             return AuthenticationResponse.builder().token(jwtToken).build();
         }
+        */
+
+    @Value("${spring.security.oauth2.client.provider.google.user-info-uri}")
+    private String userInfoUri;
+    @Autowired
+
+    private OAuth2AuthorizedClientManager authorizedClientManager;
 
 
+
+
+    public String exchangeCodeForUser(String code, String redirectUri) {
+        try {
+            OAuth2AuthorizedClient authorizedClient = authorizeClient(code, redirectUri);
+            if (authorizedClient == null || authorizedClient.getAccessToken() == null) {
+                throw new IllegalStateException("Failed to get access token");
+            }
+
+            OAuth2User oAuth2User = fetchUserFromGoogle(authorizedClient.getAccessToken());
+            User user = saveNewGoogleUser(oAuth2User);
+
+
+            // Populate claims as needed
+            var jwtToken = jwtService.generateToken(new HashMap<>(), user);// Assuming generateToken accepts user email or claims map
+
+            return jwtToken;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to exchange code for user", e);
+        }
+    }
+
+    private OAuth2User fetchUserFromGoogle(OAuth2AccessToken accessToken) {
+        RestTemplate restTemplate = new RestTemplate();
+
+        // Utiliser directement le jeton d'accès pour faire la requête à l'API Google
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken.getTokenValue()); // Utilisation du Bearer Token
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        ResponseEntity<Map> response = restTemplate.exchange(
+                userInfoUri, // L'URL pour récupérer les informations de l'utilisateur, typiquement fourni dans la configuration
+                HttpMethod.GET,
+                entity,
+                Map.class);
+
+        Map<String, Object> userInfo = response.getBody();
+        return new DefaultOAuth2User(
+                Collections.singleton(new SimpleGrantedAuthority("USER")),
+                userInfo,
+                "name"); // Le "name" est l'attribut pour identifier le nom d'utilisateur principal dans les informations retournées
+    }
+
+
+
+    public OAuth2AuthorizedClient authorizeClient(String code, String redirectUri) {
+        OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId("google")
+                .principal("ANONYMOUS") // Use an appropriate principal
+                .attributes(attrs -> {
+                    attrs.put(OAuth2ParameterNames.CODE, code);
+                    attrs.put(OAuth2ParameterNames.REDIRECT_URI, redirectUri);
+                }).build();
+
+        return this.authorizedClientManager.authorize(authorizeRequest);
+    }
+
+    private User saveNewGoogleUser(OAuth2User oAuth2User) {
+        String email = oAuth2User.getAttribute("email");
+        return userRepository.findByEmail(email).orElseGet(() -> {
+            User newUser = new User();
+            newUser.setEmail(email);
+            newUser.setFirstName(oAuth2User.getAttribute("given_name"));
+            newUser.setLastName(oAuth2User.getAttribute("family_name"));
+            newUser.setRole("USER"); // Replace with your desired default role
+            newUser.setStatue(true); // Set initial status
+
+            // Additional attributes
+            return userRepository.save(newUser);
+        });
+    }
     }
 
