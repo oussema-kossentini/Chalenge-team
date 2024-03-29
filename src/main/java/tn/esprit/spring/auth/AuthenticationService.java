@@ -281,7 +281,7 @@ public boolean verifyResetCode(String email, String code) {
             String jwtToken = jwtService.generateToken(new HashMap<>(), user);
 
             // Construire et retourner la réponse
-            return new AuthenticationResponse(jwtToken, user.getFirstName(), user.getLastName(), user.getEmail());
+            return new AuthenticationResponse(jwtToken, user.getFirstName(), user.getLastName(), user.getEmail(),user.getIdUser());
         } catch (UsernameNotFoundException e) {
             // Gestion spécifique lorsque l'email n'est pas trouvé
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());

@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.spring.entities.Evaluation;
 import tn.esprit.spring.entities.QA;
@@ -20,6 +21,7 @@ import java.util.List;
 public class EvaluationController {
     IEvaluationService evaluationService;
     @PostMapping("add/eval ")
+    @PreAuthorize("hasRole('TEACHER') or hasRole('ADMINISTRATOR')")
     public Evaluation addqa(@RequestBody Evaluation evaluation){
         return evaluationService.addEvaluation(evaluation);
     }
