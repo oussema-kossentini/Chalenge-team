@@ -279,7 +279,7 @@ public boolean verifyResetCode(String email, String code) {
 
             // Générer le token JWT pour l'utilisateur authentifié
             String jwtToken = jwtService.generateToken(new HashMap<>(), user);
-//
+
             // Construire et retourner la réponse
             return new AuthenticationResponse(jwtToken, user.getFirstName(), user.getLastName(), user.getEmail(),user.getIdUser());
         } catch (UsernameNotFoundException e) {
