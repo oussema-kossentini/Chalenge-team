@@ -57,6 +57,14 @@ public class ScheduleController {
         }
     }
 
-
+    @PostMapping("/add-to-classe/{idClasse}")
+    public ResponseEntity<Scheduel> addScheduelToClasse(@RequestBody Scheduel scheduel, @PathVariable String idClasse) {
+        try {
+            Scheduel addedScheduel = scheduleService.addScheduelToClasse(scheduel, idClasse);
+            return ResponseEntity.ok(addedScheduel);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
 
 }

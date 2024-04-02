@@ -24,6 +24,24 @@ public class SessionController {
 
 
     @CrossOrigin(origins = "http://localhost:4200")
+  /*  @PostMapping("add/session")
+    public ResponseEntity<?> addSession(@RequestBody Session session, @RequestParam("idScheduel") String idScheduel, @RequestParam("idSubject") String idSubject) {
+        try {
+            // La méthode addSession retourne maintenant un boolean
+            boolean sessionAdded = sessionService.addSession(session, idScheduel, idSubject);
+
+            if(sessionAdded) {
+                // Si la session est ajoutée avec succès, retourner la session et un statut 200 OK
+                return ResponseEntity.ok(session);
+            } else {
+                // Si la session n'est pas ajoutée à cause d'un chevauchement, retourner une réponse appropriée
+                return ResponseEntity.badRequest().body("Session could not be added due to overlap");
+            }
+        } catch (RuntimeException e) {
+            // Gestion des exceptions
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
+    }*/
     @PostMapping("add/session")
     public ResponseEntity<?> addSession(@RequestBody Session session, @RequestParam("idScheduel") String idScheduel, @RequestParam("idSubject") String idSubject) {
         try {

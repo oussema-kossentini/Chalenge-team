@@ -44,6 +44,22 @@ public class ScheduleService implements IScheduleService{
         }
     }
 
+
+    @Transactional
+    public Scheduel addScheduelToClasse(Scheduel scheduel, String idClasse) {
+        Optional<Classe> classeOptional = classeRepository.findById(idClasse);
+
+        if (classeOptional.isPresent()) {
+            Classe classe = classeOptional.get();
+
+            scheduel.setClasse(classe);
+
+            return scheduleRepository.save(scheduel);
+        } else {
+            throw new RuntimeException("Classe avec id " + idClasse + " non trouvée");
+        }
+    }
+
     @Override
     public List<Scheduel> retrieveAllScheduels() {
         return scheduleRepository.findAll();

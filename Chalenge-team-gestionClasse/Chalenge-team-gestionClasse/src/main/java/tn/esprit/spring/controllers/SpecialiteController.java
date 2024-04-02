@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.spring.dto.SpecialiteDto;
 import tn.esprit.spring.entities.*;
 import tn.esprit.spring.repositories.SpecialiteRepository;
 import tn.esprit.spring.services.ISessionService;
@@ -76,5 +77,13 @@ public class SpecialiteController {
     @GetMapping("/titles")
     public List<String> getAllTitles() {
         return specialiteService.getAllTitles();
+    }
+
+
+
+
+    @GetMapping("/getSpecialiteAndClasseFromProfesseur/{idUser}")
+    public List<SpecialiteDto> getSpecialiteAndClasseFromProfesseur(@PathVariable String idUser) {
+        return specialiteService.getSpecialiteAndClasseFromProfesseur(idUser);
     }
     }

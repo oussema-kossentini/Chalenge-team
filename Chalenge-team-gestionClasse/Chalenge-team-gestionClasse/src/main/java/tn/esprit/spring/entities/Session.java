@@ -23,7 +23,8 @@ public class Session implements Serializable {
     @Id
     private String idSession;
 
-    private String title;
+
+    private String day;
 
     private LocalTime debutHour;
 

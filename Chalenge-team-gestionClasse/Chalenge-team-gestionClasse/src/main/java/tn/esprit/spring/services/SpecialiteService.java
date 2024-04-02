@@ -3,6 +3,7 @@ package tn.esprit.spring.services;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tn.esprit.spring.dto.SpecialiteDto;
 import tn.esprit.spring.entities.*;
 import tn.esprit.spring.repositories.ClasseRepository;
 import tn.esprit.spring.repositories.SpecialiteRepository;
@@ -403,4 +404,58 @@ public class SpecialiteService implements ISpecialiteService{
     public List<String> getAllTitles() {
         return specialiteRepository.findAll().stream().map(specialite -> specialite.getTitle()).toList();
     }
+
+
+    @Override
+    public List<SpecialiteDto> getSpecialiteAndClasseFromProfesseur(String idUser) {
+        List<SpecialiteDto> specialiteDtos = new ArrayList<>();
+
+
+        for (Specialite specialite : specialiteRepository.findAll()){
+            // houni specialiter wa7dha
+            SpecialiteDto specialiteDto= new SpecialiteDto();
+
+            specialiteDto.setTitle(specialite.getTitle());
+            for (String idClasse : specialite.getClassesIds()){
+                Classe classe = classeRepository.findById(idClasse).orElse(null);
+
+                if(classe!=null){
+                    for (String userId : classe.getUsersIds()) {
+                        if (userId.toString().equals(idUser.toString())) {
+                            User user = userRepository.findById(userId).orElse(null);
+                            if (user != null) {
+                                if (user.getRole().equals(Role.PROFESSOR)) {
+
+                                    specialiteDto.getClasses().add(classe.getNameClasse());
+
+                                }
+                            }
+                        }
+                    }
+
+
+                }
+
+
+            }
+// donc if hedhi kan el prof 3andhou classet fi specialiter hedhikaa fi wost eli a3mathaaa specialiterDetos
+            if(specialiteDto.getClasses().size()>0){
+                System.out.println("Specilite : "+ specialiteDto.getTitle());
+                for (String classe : specialiteDto.getClasses()){
+                    System.out.println("Classe : " +classe);
+                }
+                specialiteDtos.add(specialiteDto);
+            }
+
+
+        }
+
+
+
+
+        return specialiteDtos;
+    }
+
+
 }
+

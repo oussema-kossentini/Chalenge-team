@@ -10,6 +10,7 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import tn.esprit.spring.entities.Scheduel;
 import tn.esprit.spring.entities.User;
 
 import java.io.File;
@@ -50,6 +51,9 @@ ClasseRepository classeRepository;
 
         return classeService.addClasse(us);
     }
+
+
+
 
     @GetMapping("/retrieve-all-classe")
     public List<Classe> getClasse() {
@@ -229,6 +233,9 @@ ClasseRepository classeRepository;
 
         document.close();
     }
-
+    @GetMapping("/classes/{userId}")
+    public List<Classe> getClassesByUserId(@PathVariable String userId) {
+        return classeService.findClassesByUserIds(userId);
+    }
 
 }

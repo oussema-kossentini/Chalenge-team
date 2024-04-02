@@ -1,6 +1,7 @@
 package tn.esprit.spring.services;
 
 import tn.esprit.spring.entities.Classe;
+import tn.esprit.spring.entities.Scheduel;
 import tn.esprit.spring.entities.User;
 
 import java.util.List;
@@ -20,12 +21,12 @@ public interface IClasseService {
     List<User> getProfessorFromClass(String idClasse);
 
     Classe affecterUserInClass(String idUser,String idClasse);
-
+    //public Classe retrieveScheduelById(String id) ;
     List<User> getEtudiant();
      List<User> getEnsignat();
 
     public void deleteClasseAndSpecialiteAssociation(String idClasse);
 
-
+    List<Classe> findClassesByUserIds(String userId);
 
 }

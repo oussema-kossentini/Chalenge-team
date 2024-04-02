@@ -13,4 +13,5 @@ public interface IScheduleService {
     public Scheduel modifyScheduel(Scheduel bloc);
     public Scheduel retrieveScheduelById( String id) ;
     Scheduel addScheduelToClasseP(Scheduel scheduel, String idClasse);
+    Scheduel addScheduelToClasse(Scheduel scheduel, String idClasse);
 }
