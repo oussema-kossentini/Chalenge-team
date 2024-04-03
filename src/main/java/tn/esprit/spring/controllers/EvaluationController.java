@@ -19,7 +19,7 @@ import java.util.List;
 @RequestMapping("api/evaluations")
 public class EvaluationController {
     IEvaluationService evaluationService;
-    @PostMapping("/add")
+    @PostMapping("add/eval ")
     public Evaluation addqa(@RequestBody Evaluation evaluation){
         return evaluationService.addEvaluation(evaluation);
     }

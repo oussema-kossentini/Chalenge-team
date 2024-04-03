@@ -5,7 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.spring.entities.Classe;
 import tn.esprit.spring.entities.Content;
+import tn.esprit.spring.services.IClasseService;
 import tn.esprit.spring.services.IContentService;
 
 import java.util.List;
@@ -28,7 +30,7 @@ public class ContentController {
         return listContents;
     }
     @DeleteMapping("/remove-contents/{content-id}")
-    public void removeChambre(@PathVariable("chambre-id") String chId) {
+    public void removeChambre(@PathVariable("content-id") String chId) {
         contentService.removeContent(chId);
     }
     @PutMapping("/modify-content/{id}")
