@@ -30,7 +30,7 @@ public class ContentController {
         return listContents;
     }
     @DeleteMapping("/remove-contents/{content-id}")
-    public void removeChambre(@PathVariable("chambre-id") String chId) {
+    public void removeChambre(@PathVariable("content-id") String chId) {
         contentService.removeContent(chId);
     }
     @PutMapping("/modify-content/{id}")
