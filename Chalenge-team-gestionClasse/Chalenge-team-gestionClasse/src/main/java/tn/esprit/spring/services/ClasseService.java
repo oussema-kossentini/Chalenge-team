@@ -183,11 +183,13 @@ public class ClasseService implements IClasseService {
         return classeRepository.findByUsersIdsContains(userId);
     }
     @Override
-    public Classe affecterUserInClass(String idUser, String idClasse) {
+    public Classe affecterUserInClass(String idUser, String idClasse  ) {
         Classe classe = classeRepository.findById(idClasse).orElse(null);
         User user = userRepository.findById(idUser).orElse(null);
+       // User user = userRepository.findByNameClasse(nameClasse).orElse(null);
         if (classe != null && user != null) {
             classe.getUsersIds().add(idUser);
+           // classe.getNameClasse().add(nameClasse);
 
             PhoneNumber to = new PhoneNumber("+21620954080");
             PhoneNumber from = new PhoneNumber(twilioConfig.getTrialNumber());

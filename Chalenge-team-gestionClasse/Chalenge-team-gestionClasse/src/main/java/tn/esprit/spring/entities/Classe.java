@@ -38,6 +38,7 @@ public class Classe implements Serializable {
     private Set<String> usersIds = new HashSet<>(); // Initialisation directe
 
 
+
     @DBRef
     private Specialite specialite;
 
@@ -49,5 +50,5 @@ public class Classe implements Serializable {
     @DBRef
     Set<Evaluation> evaluations;
     @DBRef
-    Set<User>users;
+    Set<User>users;   //ici
 }
