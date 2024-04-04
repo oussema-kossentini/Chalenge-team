@@ -62,22 +62,31 @@ public class SessionService implements ISessionService{
         Optional<Subject> subjectOptional = subjectRepository.findById(idSubject);
         Optional<Scheduel> ScheduelOptional = scheduleRepository.findById(idScheduel);
 
-
-//orgin
-        if (subjectOptional.isPresent()&& ScheduelOptional.isPresent()) {
-            Scheduel scheduel = ScheduelOptional.get();
+        if (subjectOptional.isPresent() && ScheduelOptional.isPresent()) {
+            Scheduel schedule = ScheduelOptional.get();
             Subject subject = subjectOptional.get();
 
+            // Vérification de l'existence d'une session au même horaire, jour et vérification que le planning est différent
+            List<Session> existingSessions = sessionRepository.findByDayAndDebutHourAndEndHour(
+                    session.getDay(), session.getDebutHour(), session.getEndHour());
 
+            boolean isConflict = existingSessions.stream().anyMatch(existingSession ->
+                    existingSession.getSchedule() != null && existingSession.getSchedule().getIdScheduel().equals(idScheduel));
 
-            session.setSchedule(scheduel);
+            if (isConflict) {
+                throw new RuntimeException("Ce créneau horaire est déjà réservé pour le jour " + session.getDay() + " dans ce planning spécifique.");
+            }
+
+            session.setSchedule(schedule);
             session.setSubject(subject);
 
             return sessionRepository.save(session);
         } else {
-            throw new RuntimeException("Classe avec id " + idScheduel + " non trouvée"+idSubject);
+            throw new RuntimeException("Sujet avec id " + idSubject + " ou Planning avec id " + idScheduel + " non trouvé.");
         }
     }
+
+
 
     @Override
     public List<Session> retrieveAllSessions() {
