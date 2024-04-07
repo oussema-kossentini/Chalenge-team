@@ -23,4 +23,6 @@ public class Comment implements Serializable {
     Date creationDate;
     @DBRef
     private User user;
+    @DBRef
+    Publication publication;
 }
