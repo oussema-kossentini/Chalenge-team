@@ -18,6 +18,7 @@ public interface SessionRepository extends MongoRepository<Session,String> {
 
     List<Session> findByDayAndDebutHourAndEndHour(String day, LocalTime debutHour, LocalTime endHour);
 
+    boolean existsByDayAndDebutHourAndEndHour(String day, LocalTime debutHour, LocalTime endHour);
 
 
 }

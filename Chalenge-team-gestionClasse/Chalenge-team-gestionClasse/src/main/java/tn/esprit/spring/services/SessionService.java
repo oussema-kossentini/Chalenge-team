@@ -98,21 +98,30 @@ public class SessionService implements ISessionService{
 
     @Transactional
     public Session addSessionScheduel(Session session, String idScheduel) {
-
-
+        // Récupère le Scheduel par son ID
         Optional<Scheduel> scheduelOptional = scheduleRepository.findById(idScheduel);
 
-        if (scheduelOptional.isPresent()) {
-            Scheduel scheduel = scheduelOptional.get();
-
-            session.setSchedule(scheduel);
-
-            return sessionRepository.save(session);
-        } else {
+        if (!scheduelOptional.isPresent()) {
             throw new RuntimeException("Classe avec id " + idScheduel + " non trouvée");
         }
+        Scheduel scheduel = scheduelOptional.get();
 
+        // Vérifie si une session existe déjà pour le jour, l'heure de début et de fin spécifiés
+        List<Session> existingSessions = sessionRepository.findByDayAndDebutHourAndEndHour(
+                session.getDay(), session.getDebutHour(), session.getEndHour());
+
+        boolean isConflict = existingSessions.stream().anyMatch(existingSession ->
+                existingSession.getSchedule() != null && existingSession.getSchedule().getIdScheduel().equals(idScheduel));
+
+        if (isConflict) {
+            throw new RuntimeException(" Choisissez une autre date car elle est déjà remplie.");
+        }
+
+        // Si aucune session existante n'est trouvée pour le créneau horaire, on l'ajoute
+        session.setSchedule(scheduel);
+        return sessionRepository.save(session);
     }
+
 
 
 
