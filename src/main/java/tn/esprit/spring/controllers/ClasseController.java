@@ -132,7 +132,10 @@ ClasseRepository classeRepository;
 
 
 
-
+    @GetMapping("/classes/{userId}")
+    public List<Classe> getClassesByUserId(@PathVariable String userId) {
+        return classeService.findClassesByUserIds(userId);
+    }
 
     @DeleteMapping("/deleteAndUnassignSpecialite/{idClasse}")
     public void deleteClasseAndUnassignSpecialite(@PathVariable String idClasse) {
