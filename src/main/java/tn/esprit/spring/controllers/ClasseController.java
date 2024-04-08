@@ -33,7 +33,7 @@ import tn.esprit.spring.entities.Level;
 import tn.esprit.spring.repositories.ClasseRepository;
 import tn.esprit.spring.services.IClasseService;
 
-import javax.persistence.IdClass;
+
 
 @RestController
 @AllArgsConstructor
