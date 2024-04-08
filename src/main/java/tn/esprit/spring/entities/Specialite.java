@@ -5,8 +5,11 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.FieldType;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -18,11 +21,11 @@ import java.util.Set;
 public class Specialite implements Serializable {
     @Id
     String idSpecialite;
+
     String title;
     String description;
-    String img;
-    @DBRef
-    Set<User>users;
+    private Set<String> classesIds = new HashSet<>(); // Initialisation directe
+
     @DBRef
     Set<Class>classes;
 
