@@ -22,7 +22,7 @@ import tn.esprit.spring.repositories.ClasseRepository;
 import tn.esprit.spring.repositories.SpecialiteRepository;
 import tn.esprit.spring.repositories.UserRepository;
 
-import javax.persistence.EntityNotFoundException;
+
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
