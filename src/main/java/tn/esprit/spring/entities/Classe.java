@@ -42,9 +42,6 @@ public class Classe implements Serializable {
     private Specialite specialite;
 
     @DBRef
-    private Set<Subject> subjects;
-
-    @DBRef
     private Scheduel scheduel;
 
     @DBRef

@@ -13,5 +13,7 @@ public interface ClasseRepository extends MongoRepository<Classe,String> {
 
     List<Classe> findBySpecialite(String idSpecialite);
 
+    List<Classe> findByUsersIdsContains(String userId);
+
 
 }

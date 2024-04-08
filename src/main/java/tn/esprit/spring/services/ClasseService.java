@@ -180,7 +180,9 @@ public class ClasseService implements IClasseService {
 
         return users;
     }
-
+    public List<Classe> findClassesByUserIds(String userId) {
+        return classeRepository.findByUsersIdsContains(userId);
+    }
     @Override
     public Classe affecterUserInClass(String idUser, String idClasse) {
         Classe classe = classeRepository.findById(idClasse).orElse(null);

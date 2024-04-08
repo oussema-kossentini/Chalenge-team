@@ -15,6 +15,7 @@ public interface IClasseService {
     Classe ajouterFoyerEtAffecterAUniversite (Classe classe, String idSpecialite) ;
     List<Classe> retrievePostsByidUser( String idSpecialite );
     //public void removeUserFromAllClasses(String idUser);
+    public List<Classe> findClassesByUserIds(String userId) ;
 
     List<User> getEtudiantFromClass(String idClasse);
     List<User> getProfessorFromClass(String idClasse);

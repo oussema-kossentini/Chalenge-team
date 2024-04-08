@@ -6,9 +6,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.persistence.CascadeType;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
 import java.io.Serializable;
 import java.util.Set;
 
@@ -23,7 +20,7 @@ public class Subject implements Serializable {
    String idSubject;
    String subjectName;
     @DBRef
-    Set<Classe> classes;
+    Set<Session> sessions;
 
     @DBRef
      Set<Course> courses;

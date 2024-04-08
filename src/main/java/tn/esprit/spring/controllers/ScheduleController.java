@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.spring.entities.Course;
 import tn.esprit.spring.entities.Scheduel;
@@ -16,6 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@CrossOrigin(origins = "http://localhost:4200/**")
 @RequestMapping("api/schedule")
 public class ScheduleController {
     IScheduleService scheduleService;
@@ -38,4 +40,31 @@ public class ScheduleController {
         return scheduleService.addSchedule(c);
 
     }
+
+    @GetMapping("/{id}")
+    public Scheduel getScheduelById(@PathVariable String id) {
+        return scheduleService.retrieveScheduelById(id);
+    }
+
+
+    @PostMapping("/add-S-C/{idClasse}")
+    public ResponseEntity<Scheduel> addScheduelToClasseP(@RequestBody Scheduel scheduel, @PathVariable String idClasse) {
+        try {
+            Scheduel addedScheduel = scheduleService.addScheduelToClasseP(scheduel, idClasse);
+            return ResponseEntity.ok(addedScheduel);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @PostMapping("/add-to-classe/{idClasse}")
+    public ResponseEntity<Scheduel> addScheduelToClasse(@RequestBody Scheduel scheduel, @PathVariable String idClasse) {
+        try {
+            Scheduel addedScheduel = scheduleService.addScheduelToClasse(scheduel, idClasse);
+            return ResponseEntity.ok(addedScheduel);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
 }
