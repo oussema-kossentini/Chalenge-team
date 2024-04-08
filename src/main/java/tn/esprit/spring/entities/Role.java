@@ -2,7 +2,8 @@ package tn.esprit.spring.entities;
 
 public enum Role {
     ADMINISTRATOR,
-    TEACHER,
+    PROFESSOR,
     USER,
+    TEACHER,
     STUDENT
 }
