@@ -1,7 +1,7 @@
 package tn.esprit.spring.configuration;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
+
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -39,8 +39,15 @@ public class JwtService {
     }
 
     public String extractEmail(String token) {
-        return extractClaim(token, claims -> claims.get("email", String.class));
+        return extractClaim(token, claims -> {
+            Object emailObj = claims.get("email");
+            if (emailObj instanceof String) { // Check if it is an instance of String
+                return (String) emailObj; // Safely cast to String
+            }
+            return null; // Return null or throw an exception if it's not a String
+        });
     }
+
 
 
     public boolean isLoggedInAndJwtValid(String jwtToken) {
@@ -71,7 +78,7 @@ public class JwtService {
     public boolean isTokenBlacklisted(String jwtToken) {
         return blacklistedTokens.contains(jwtToken);
     }
- //token maghir role
+    //token maghir role
    /* public String generateToken(
             Map<String,Object> extraClaims,
             UserDetails userDetails
@@ -127,8 +134,8 @@ public class JwtService {
         // Add user ID and email to extraClaims
         extraClaims.put("userId", user.getId());
         extraClaims.put("email", user.getUsername());
-       // user fisrt name
-       extraClaims.put("lastName",user.getLastName());
+        // user fisrt name
+        extraClaims.put("lastName",user.getLastName());
         extraClaims.put("firstName",user.getFirstName());
 
      /*   String csrfToken = UUID.randomUUID().toString();
@@ -141,11 +148,11 @@ public class JwtService {
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
-                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .signWith(SignatureAlgorithm.HS256, getSignInKey())
                 .compact();
     }
 
-    public boolean verifyCsrfToken(String csrfTokenFromRequest, String jwtToken) {
+  /*  public boolean verifyCsrfToken(String csrfTokenFromRequest, String jwtToken) {
         try {
             // Extraire le csrfToken du JWT en utilisant la même clé pour signer et vérifier le JWT
             Claims claims = Jwts.parserBuilder()
@@ -162,7 +169,7 @@ public class JwtService {
             // Gérer l'exception si le JWT est invalide (signature incorrecte, expiré, etc.)
             return false;
         }
-    }
+    }*/
 
 
 
@@ -186,21 +193,28 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    private Claims extractAllClaims(String token){
+/*    private Claims extractAllClaims(String token){
         return Jwts
+
                 .parserBuilder()
                 .setSigningKey(getSignInKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-    }
+    }*/
+private Claims extractAllClaims(String token) {
+    return Jwts.parser()
+            .setSigningKey(getSignInKey())
+            .parseClaimsJws(token)
+            .getBody();
+}
 
   /*  @Value("${jwt.secret}")
     private String secretKey;*/
 
     private Key getSignInKey() {
-      byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
-       // byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+        // byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }

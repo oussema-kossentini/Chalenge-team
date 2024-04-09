@@ -2,7 +2,7 @@ package tn.esprit.spring.services;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import tn.esprit.spring.config.CommentNotFoundException;
+import tn.esprit.spring.Config.CommentNotFoundException;
 import tn.esprit.spring.entities.Comment;
 import tn.esprit.spring.entities.Publication;
 import tn.esprit.spring.repositories.CommentRepository;

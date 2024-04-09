@@ -58,10 +58,12 @@ public class User implements UserDetails,Serializable {
     @JsonIgnore
     @DBRef
     Classe classe;
-
+    @DBRef
+    Set<Specialite>specialites;
     @DBRef
     Set<Publication> publications;
-
+    @DBRef
+    private List<Evaluation> evaluations;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // Convertir le rôle de l'utilisateur en GrantedAuthority
