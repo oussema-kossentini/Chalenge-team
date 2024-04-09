@@ -144,6 +144,10 @@ public class JwtService {
         // Add user ID and email to extraClaims
         extraClaims.put("userId", user.getId());
         extraClaims.put("email", user.getUsername());
+        extraClaims.put("phone",user.getPhone());
+        extraClaims.put("nationality",user.getNationality());
+        extraClaims.put("dateOfBirth",user.getDateOfBirth());
+        extraClaims.put("profilePicture",user.getProfilePicture());
         // user fisrt name
         extraClaims.put("lastName",user.getLastName());
         extraClaims.put("firstName",user.getFirstName());
