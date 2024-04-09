@@ -195,7 +195,7 @@ public ResponseEntity<AuthenticationResponse> register(
 
         // Extrait le token du header Authorization
         String token = authorizationHeader.substring(7);
-        String email = jwtService.extractEmail(token);
+        String email = jwtService.getEmailFromToken(token);
 
         // Utilisez l'email pour trouver l'utilisateur
         Optional<User> userOptional = userRepository.findByEmail(email);

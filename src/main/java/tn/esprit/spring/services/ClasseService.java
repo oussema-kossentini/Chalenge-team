@@ -1,19 +1,12 @@
 package tn.esprit.spring.services;
 
 
-import com.twilio.Twilio;
-import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
 
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.pdf.PdfWriter;
-import com.twilio.type.PhoneNumber;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Service;
-import tn.esprit.spring.Config.TwilioConfig;
+import tn.esprit.spring.configuration.TwilioConfig;
 import tn.esprit.spring.entities.Classe;
 import tn.esprit.spring.entities.Role;
 import tn.esprit.spring.entities.Specialite;
@@ -23,12 +16,9 @@ import tn.esprit.spring.repositories.SpecialiteRepository;
 import tn.esprit.spring.repositories.UserRepository;
 
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor

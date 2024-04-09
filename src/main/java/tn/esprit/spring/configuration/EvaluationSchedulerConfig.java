@@ -1,4 +1,4 @@
-package tn.esprit.spring.Config;
+package tn.esprit.spring.configuration;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;

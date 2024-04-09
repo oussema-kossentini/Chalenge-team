@@ -1,4 +1,4 @@
-package tn.esprit.spring.Config;
+package tn.esprit.spring.configuration;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
