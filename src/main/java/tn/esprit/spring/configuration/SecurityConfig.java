@@ -1,5 +1,6 @@
 package tn.esprit.spring.configuration;
-
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +29,12 @@ import tn.esprit.spring.auth.GoogleOAuth2Service;
 import tn.esprit.spring.configuration.JwtAuthenticationFilter;
 import tn.esprit.spring.auth.CustomAuthenticationSuccessHandler;
 import java.util.Arrays;
-
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     private final AuthenticationProvider authenticationProvider;
@@ -58,45 +61,38 @@ public class SecurityConfig {
 
     @Autowired
     private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
-
     @Bean
     public SecurityFilterChain securityFilterchain(HttpSecurity http) throws Exception {
-      /*  http
-                .csrf()
-                .disable()
-                .authorizeHttpRequests()
+        http
+                .csrf().disable()
+                .authorizeRequests()
                 .requestMatchers(AUTH_WHITELIST).permitAll()
-                .requestMatchers("/api/users/nationalities", "/api/users/roles","/api/auth/**","/api/users/**").permitAll() // Permettre l'accès sans authentification
-                .anyRequest()
-
-                .authenticated()
+                .requestMatchers("/api/users/nationalities", "/api/users/roles", "/api/auth/**", "/api/users/**").permitAll() // Permettre l'accès sans authentification
+                .anyRequest().authenticated()
                 .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("http://localhost:4200/login")
+                        .defaultSuccessUrl("http://localhost:4200/google-callback", true))
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthenticationFilter , UsernamePasswordAuthenticationFilter.class);
-*/
-       /* http
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .authorizeRequests() // Activer l'utilisation de @PreAuthorize
+                .expressionHandler(defaultWebSecurityExpressionHandler());// Configurer l'expressionHandler pour les annotations
 
-                .authorizeHttpRequests(authz -> authz
-                        .requestMatchers(AUTH_WHITELIST).permitAll()
-                        .requestMatchers("/api/users/nationalities", "/api/users/roles","/api/auth/**","/api/users/**").permitAll() // Permettre l'accès sans authentification
-                        .anyRequest().authenticated())
-                //.oauth2Login()// Cela doit être configuré au niveau de la chaîne http et non à la suite de anyRequest()
-             //   .successHandler(customAuthenticationSuccessHandler);
-        http
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
 
-        return http.build();*/
+    @Bean
+    public DefaultWebSecurityExpressionHandler defaultWebSecurityExpressionHandler() {
+        return new DefaultWebSecurityExpressionHandler();
+    }
+   /* @Bean
+    public SecurityFilterChain securityFilterchain(HttpSecurity http) throws Exception {
+
 
         http
-                //.csrf()
-                //.csrf(AbstractHttpConfigurer::disable)
+
                 .csrf().disable()
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers(AUTH_WHITELIST).permitAll()
@@ -107,17 +103,17 @@ public class SecurityConfig {
                         .loginPage("http://localhost:4200/login")
                         .defaultSuccessUrl("http://localhost:4200/google-callback", true)
                 )
-      //  http
-               //.sessionManagement()
-                //.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-               // .and()
+
          .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
+
         return http.build();
     }
+    //el fouk hedi jawha bai just mafiha fazet@ preauthorise
+    */
 
     @Bean
     public StrictHttpFirewall strictHttpFirewall() {
@@ -126,7 +122,10 @@ public class SecurityConfig {
         return firewall;
     }
 
-
+    @Bean
+    public DefaultMethodSecurityExpressionHandler expressionHandler() {
+        return new DefaultMethodSecurityExpressionHandler();
+    }
     //heda 6.0.2 akal haja nbadel el version
 
     @Bean

@@ -1,6 +1,7 @@
 package tn.esprit.spring.auth;
-
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -15,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
@@ -58,6 +60,79 @@ public class AuthenticationController {
         return ResponseEntity.ok(service.register(request));
     }
 */
+/*@GetMapping("/userinfo/{idUser}")
+public ResponseEntity<UserInfoResponse> getUserInfo(@PathVariable String idUser, @RequestHeader("Authorization") String token) {
+    // Validate JWT token
+    if (!jwtService.isLoggedInAndJwtValid(token)) {
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    // Extract username from token
+    String username = jwtService.extractUsername(token);
+
+    // Find user by id
+    User user = userRepository.findById(idUser)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+    // Check if the user is authorized to access this resource based on their role
+    UserDetails userDetails = getUserDetailsFromToken(token);
+    if (!isUserAuthorized(userDetails)) {
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+    }
+
+    // Build response
+    UserInfoResponse userInfoResponse = UserInfoResponse.builder()
+            .firstName(user.getFirstName())
+            .lastName(user.getLastName())
+            .email(user.getUsername())
+            .dateOfBirth(user.getDateOfBirth())
+            .nationality(user.getNationality())
+            .phone(user.getPhone())
+            .profilePicture(user.getProfilePicture())
+            .build();
+
+    return ResponseEntity.ok(userInfoResponse);
+}
+*/
+
+  /*  private UserDetails getUserDetailsFromToken(String token) {
+        // Implement this method to extract UserDetails from token
+        // You can use JwtService or any other mechanism based on your implementation
+    }
+
+    private boolean isUserAuthorized(UserDetails userDetails) {
+        // Implement this method to check if the user has the necessary role to access this resource
+        // You can extract roles from UserDetails and perform the authorization logic based on your requirements
+    } */
+
+  @GetMapping("/userinfo/{idUser}")
+    @PreAuthorize("hasRole('ADMINISTRATOR') or hasRole('USER') or hasRole('TEACHER') or hasRole('STUDENT') or hasRole('PROFESSOR')  ")
+    public ResponseEntity<UserInfoResponse> getUserInfo(@PathVariable String idUser) {
+        User user = userRepository.findById(idUser)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        UserInfoResponse userInfoResponse = UserInfoResponse.builder()
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getUsername())
+                .dateOfBirth(user.getDateOfBirth())
+                .nationality(user.getNationality())
+                .phone(user.getPhone())
+                .profilePicture(user.getProfilePicture())
+                .build();
+
+        return ResponseEntity.ok(userInfoResponse);
+    }
+   /* public ResponseEntity<UserInfo> getUserInfo(@AuthenticationPrincipal UserDetails userDetails) {
+        // Récupérer l'ID de l'utilisateur à partir des informations d'authentification
+        Long userId = ((CustomUserDetails) userDetails).getId();
+
+        // Récupérer les informations de l'utilisateur à partir de l'ID et les renvoyer
+        UserInfo userInfo = userRepository.findById(userId).orElse(null);
+        return ResponseEntity.ok(userInfo);
+    }
+*/
+
 @PostMapping("/forgot-password")
 public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> payload) {
     String email = payload.get("email");

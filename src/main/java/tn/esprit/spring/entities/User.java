@@ -30,6 +30,7 @@ public class User implements UserDetails,Serializable {
     @Id
     //@JsonIgnore
     String idUser;
+
     String firstName;
     String lastName;
     String email;
@@ -64,6 +65,10 @@ public class User implements UserDetails,Serializable {
     Set<Publication> publications;
     @DBRef
     private List<Evaluation> evaluations;
+    public Role getRole() {
+        return this.role;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // Convertir le rôle de l'utilisateur en GrantedAuthority

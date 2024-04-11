@@ -8,7 +8,10 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
@@ -40,6 +43,11 @@ public class JwtService {
         final Claims claims =extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
+    public String extractUserId(String token) {
+        Claims claims = extractAllClaims(token);
+        return claims.getSubject();
+            // Code pour extraire l'ID utilisateur du token JWT
+        }
 
     public  String getEmailFromToken(String token) {
         // Décoder le jeton pour récupérer les claims
@@ -143,14 +151,16 @@ public class JwtService {
 
         // Add user ID and email to extraClaims
         extraClaims.put("userId", user.getId());
-        extraClaims.put("email", user.getUsername());
+       /* extraClaims.put("email", user.getUsername());  //
         extraClaims.put("phone",user.getPhone());
         extraClaims.put("nationality",user.getNationality());
-        extraClaims.put("dateOfBirth",user.getDateOfBirth());
+        extraClaims.put("dateOfBirth",user.getDateOfBirth());//
         extraClaims.put("profilePicture",user.getProfilePicture());
         // user fisrt name
-        extraClaims.put("lastName",user.getLastName());
-        extraClaims.put("firstName",user.getFirstName());
+        extraClaims.put("lastName",user.getLastName());//
+        extraClaims.put("firstName",user.getFirstName());//
+
+        */
 
      /*   String csrfToken = UUID.randomUUID().toString();
 
@@ -185,6 +195,15 @@ public class JwtService {
         }
     } */
 
+    public Authentication getAuthentication(String token) {
+        Claims claims = extractAllClaims(token);
+        Collection<? extends GrantedAuthority> authorities =
+                Arrays.stream(claims.get("roles").toString().split(","))
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toList());
+
+        return new UsernamePasswordAuthenticationToken(claims.getSubject(), token, authorities);
+    }
 
 
 

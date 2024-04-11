@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.spring.auth.AuthenticationResponse;
 import tn.esprit.spring.configuration.JwtService;
+import tn.esprit.spring.entities.Role;
 import tn.esprit.spring.entities.User;
 import tn.esprit.spring.repositories.UserRepository;
 
@@ -35,7 +36,11 @@ public class UserService implements IUserService {
     @Autowired
     private JwtService jwtService;
     private final Path rootLocation = Paths.get("path/to/your/uploaded/images");
-
+  /*  public Set<Role> getUserRolesById(String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
+        return user.getRole();
+    }*/
     public User addUserimage(User user, MultipartFile image) {
         if (image != null && !image.isEmpty()) {
             try {
