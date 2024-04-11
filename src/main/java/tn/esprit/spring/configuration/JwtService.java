@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.core.GrantedAuthority;
 import tn.esprit.spring.entities.User;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.*;
 import java.util.function.Function;
@@ -35,13 +36,30 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    private static final String SECRET_KEY = "BL1V1g4BMp7mPipXG2CR05lSHZZiNcOJLJaEFv4p381Z9JC/e/o/VvY5Q0XVY/R5ZyeM72EF8kO6ayoX+YA2Ip/WCy4JN+NRTMu+UqUafDu4w6QNin72CkcZOLTlYaZRDeEINFLjdmvXjufr0apRwTMmEXyIktqvZLdA+HnAcjfgbd+kqAV2oimXq29fPeB4gERCT/F7UcPAS1cQxjj+VGF+UlsvCipnhfi1M6MvWhbp1+f9RUNA7XDqi+dwj706L2iggwROZYayBzRu6qQhCabGZEavgF+Cf/PDl4GT2OQ/l9wQ3CwOy45LoE7alX0FYmNvnE9ldO8fqZfBe/KmwTBE1xTUDe+/uuJXRMqKmXg=";
+//    private static final String SECRET_KEY = "BL1V1g4BMp7mPipXG2CR05lSHZZiNcOJLJaEFv4p381Z9JC/e/o/VvY5Q0XVY/R5ZyeM72EF8kO6ayoX+YA2Ip/WCy4JN+NRTMu+UqUafDu4w6QNin72CkcZOLTlYaZRDeEINFLjdmvXjufr0apRwTMmEXyIktqvZLdA+HnAcjfgbd+kqAV2oimXq29fPeB4gERCT/F7UcPAS1cQxjj+VGF+UlsvCipnhfi1M6MvWhbp1+f9RUNA7XDqi+dwj706L2iggwROZYayBzRu6qQhCabGZEavgF+Cf/PDl4GT2OQ/l9wQ3CwOy45LoE7alX0FYmNvnE9ldO8fqZfBe/KmwTBE1xTUDe+/uuJXRMqKmXg=";
+
+
+    private static final String SECRET_KEY = "diq75HYPWV+7ND2Fttoqi73tL1vG3hy//4YoIjb4RlI=";
+
     public String extractUsername(String token) {
-        return extractClaim(token,Claims::getSubject);
+
+        try {
+            Claims claims = extractAllClaims(token);
+            return claims != null ? claims.getSubject() : null;
+        } catch (JwtException e) {
+            return null; // Handle JWT exceptions appropriately
+        }
     }
-    public <T> T extractClaim(String token, Function<Claims,T> claimsResolver){
-        final Claims claims =extractAllClaims(token);
-        return claimsResolver.apply(claims);
+    public Claims extractAllClaims(String token) {
+        try {
+            return Jwts.parser().setSigningKey(getSignInKey()).parseClaimsJws(token).getBody();
+        } catch (JwtException e) {
+            return null; // Handle JWT exceptions appropriately (e.g., return null)
+        }
+    }
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claims != null ? claimsResolver.apply(claims) : null; // Handle potential null claims
     }
     public String extractUserId(String token) {
         Claims claims = extractAllClaims(token);
@@ -49,15 +67,8 @@ public class JwtService {
             // Code pour extraire l'ID utilisateur du token JWT
         }
 
-    public  String getEmailFromToken(String token) {
-        // Décoder le jeton pour récupérer les claims
-        Claims claims = Jwts.parser()
-                .setSigningKey(getSignInKey()) // Remplacez par votre clé secrète
-                .parseClaimsJws(token)
-                .getBody();
-
-        // Récupérer l'email depuis les claims
-        return claims.getSubject();
+    public String getEmailFromToken(String token) {
+        return extractClaim(token, Claims::getSubject);
     }
 
 
@@ -226,19 +237,27 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    private Claims extractAllClaims(String token){
-        return Jwts.parser()
-                .setSigningKey(getSignInKey())
-                .parseClaimsJws(token)
-                .getBody();
-    }
+
 
   /*  @Value("${jwt.secret}")
     private String secretKey;*/
 
-    private Key getSignInKey() {
+ /*   private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
         // byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
-    }
+    }*/
+ private Key getSignInKey() {
+     if (this.key != null) {
+         return this.key;
+     }
+
+     synchronized (this) {
+         if (this.key == null) {
+             byte[] keyBytes = SECRET_KEY.getBytes(StandardCharsets.UTF_8);
+             this.key = new SecretKeySpec(keyBytes, SignatureAlgorithm.HS256.getJcaName());
+         }
+         return this.key;
+     }
+ }
 }

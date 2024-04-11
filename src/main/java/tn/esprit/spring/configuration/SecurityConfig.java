@@ -1,4 +1,5 @@
 package tn.esprit.spring.configuration;
+import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import jakarta.servlet.Filter;
@@ -19,6 +20,7 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
+import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
@@ -85,8 +87,15 @@ public class SecurityConfig {
 
     @Bean
     public DefaultWebSecurityExpressionHandler defaultWebSecurityExpressionHandler() {
-        return new DefaultWebSecurityExpressionHandler();
+        DefaultWebSecurityExpressionHandler handler = new DefaultWebSecurityExpressionHandler();
+        handler.setDefaultRolePrefix(""); // Remove the default 'ROLE_' prefix
+        return handler;
     }
+
+
+
+
+
    /* @Bean
     public SecurityFilterChain securityFilterchain(HttpSecurity http) throws Exception {
 

@@ -1,42 +1,33 @@
 package tn.esprit.spring.auth;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.openid.connect.sdk.claims.UserInfo;
-import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.springframework.security.core.Authentication;
+
 import lombok.RequiredArgsConstructor;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import tn.esprit.spring.configuration.JwtService;
-import tn.esprit.spring.configuration.SecurityConfig;
-import tn.esprit.spring.courszelloback.MultipartFileToByteArrayConverter;
-import tn.esprit.spring.entities.Role;
 import tn.esprit.spring.entities.User;
-import tn.esprit.spring.auth.AuthenticationResponse;
 import tn.esprit.spring.repositories.UserRepository;
 
-import java.io.IOException;
-import java.security.Principal;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Logger;
+
+import javax.ws.rs.NotFoundException;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -50,6 +41,10 @@ public class AuthenticationController {
     private   JwtService jwtService;
     @Autowired
   private    ObjectMapper objectMapper; // Jackson's ObjectMapper
+   // private Logger logger;
+
+    //@Autowired
+    //private AuthenticationController authentication;
 
 /*
     @PostMapping("/register")
@@ -106,23 +101,36 @@ public ResponseEntity<UserInfoResponse> getUserInfo(@PathVariable String idUser,
     } */
 
   @GetMapping("/userinfo/{idUser}")
-    @PreAuthorize("hasRole('ADMINISTRATOR') or hasRole('USER') or hasRole('TEACHER') or hasRole('STUDENT') or hasRole('PROFESSOR')  ")
-    public ResponseEntity<UserInfoResponse> getUserInfo(@PathVariable String idUser) {
-        User user = userRepository.findById(idUser)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+ // @PreAuthorize("hasAuthority('ADMINISTRATOR')")
 
-        UserInfoResponse userInfoResponse = UserInfoResponse.builder()
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .email(user.getUsername())
-                .dateOfBirth(user.getDateOfBirth())
-                .nationality(user.getNationality())
-                .phone(user.getPhone())
-                .profilePicture(user.getProfilePicture())
-                .build();
+  @PreAuthorize("hasRole('ADMINISTRATOR') || (hasRole('USER') || hasRole('TEACHER') || hasRole('STUDENT') || hasRole('PROFESSOR'))")
 
-        return ResponseEntity.ok(userInfoResponse);
-    }
+  // @PreAuthorize("hasRole('ADMINISTRATOR') or hasRole('USER') or hasRole('TEACHER') or hasRole('STUDENT') or hasRole('PROFESSOR')  ")
+  public ResponseEntity<UserInfoResponse> getUserInfo(@PathVariable String idUser, Authentication authentication) {
+      try {
+          Logger logger; // Initialisation du logger
+          logger = LoggerFactory.getLogger(this.getClass());
+          logger.debug("Attempting to find user with ID: {}", idUser);
+          User user = userRepository.findById(idUser)
+                  .orElseThrow(() -> new NotFoundException("User not found"));
+          logger.info("User found: {}", user.getUsername());
+          UserInfoResponse userInfoResponse = UserInfoResponse.builder()
+                  .firstName(user.getFirstName())
+                  .lastName(user.getLastName())
+                  .email(user.getUsername())
+                  .dateOfBirth(user.getDateOfBirth())
+                  .nationality(user.getNationality())
+                  .phone(user.getPhone())
+                  .profilePicture(user.getProfilePicture())
+                  .build();
+          return ResponseEntity.ok(userInfoResponse);
+      } catch (NotFoundException e) {
+          // Gérer l'exception NotFoundException ici
+          return ResponseEntity.notFound().build();
+      }
+  }
+
+
    /* public ResponseEntity<UserInfo> getUserInfo(@AuthenticationPrincipal UserDetails userDetails) {
         // Récupérer l'ID de l'utilisateur à partir des informations d'authentification
         Long userId = ((CustomUserDetails) userDetails).getId();
