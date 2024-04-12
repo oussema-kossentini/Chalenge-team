@@ -26,6 +26,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import tn.esprit.spring.auth.GoogleOAuth2Service;
 import tn.esprit.spring.configuration.JwtAuthenticationFilter;
@@ -69,6 +70,7 @@ public class SecurityConfig {
                 .csrf().disable()
                 .authorizeRequests()
                 .requestMatchers(AUTH_WHITELIST).permitAll()
+                .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                 .requestMatchers("/api/users/nationalities", "/api/users/roles", "/api/auth/**", "/api/users/**").permitAll() // Permettre l'accès sans authentification
                 .anyRequest().authenticated()
                 .and()
@@ -84,6 +86,7 @@ public class SecurityConfig {
 
         return http.build();
     }
+
 
     @Bean
     public DefaultWebSecurityExpressionHandler defaultWebSecurityExpressionHandler() {

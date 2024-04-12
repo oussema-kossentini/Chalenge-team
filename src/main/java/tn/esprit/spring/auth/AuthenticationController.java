@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +22,7 @@ import tn.esprit.spring.configuration.JwtService;
 import tn.esprit.spring.entities.User;
 import tn.esprit.spring.repositories.UserRepository;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -99,11 +101,83 @@ public ResponseEntity<UserInfoResponse> getUserInfo(@PathVariable String idUser,
         // Implement this method to check if the user has the necessary role to access this resource
         // You can extract roles from UserDetails and perform the authorization logic based on your requirements
     } */
+  @PutMapping("/update-image")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') || (hasAuthority('USER') || hasAuthority('TEACHER') || hasAuthority('STUDENT') || hasAuthority('PROFESSOR'))")
+    public ResponseEntity<String> updateProfileImage(Authentication authentication, @RequestParam("image") MultipartFile file) throws IOException {
+      if (file == null || file.isEmpty()) {
+          return ResponseEntity.badRequest().body("No file provided");
+      }
+      byte[] fileBytes = file.getBytes();
+      System.out.println("Received file with size: " + fileBytes.length + " bytes");
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
 
+        user.setProfilePicture(file.getBytes());
+        userRepository.save(user);
+
+        return ResponseEntity.ok("Profile image updated successfully");
+    }
+    //methode khir maghir id ou taksir ras kenek autehntifier ou andek les role marhbe bik
+    /* angular
+     */
+    /*fetchUserInfo(token: string) {
+  const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+  const url = '/api/userinfo'; // Adjust the URL to match your actual endpoint
+
+  return this.http.get<any>(url, { headers }).pipe(
+    tap(userInfo forEach(key => {
+    if (userInfo[key] != null) {
+      console.log(`Storing ${key}: ${userInfo[key]}`);  // Log for debugging
+      localStorage.setItem(key, userInfo[key]);
+    } else {
+      localStorage.removeItem(key);
+    }
+  });
+    catchError(error => {
+      console.error('Error fetching user info', error);
+      throw error;
+    })
+  );
+}
+*/
+/*spring*/
+
+    /*@GetMapping("/userinfo")
+@PreAuthorize("hasAuthority('ADMINISTRATOR') || (hasAuthority('USER') || hasAuthority('TEACHER') || hasAuthority('STUDENT') || hasAuthority('PROFESSOR'))")
+public ResponseEntity<UserInfoResponse> getUserInfo(Authentication authentication) {
+    try {
+        // Cast the authentication principal to your custom UserDetails if necessary
+        String userId = ((ExtendedUser)authentication.getPrincipal()).getId();
+
+        Logger logger = LoggerFactory.getLogger(this.getClass());
+        logger.debug("Attempting to find user with ID: {}", userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        logger.info("User found: {}", user.getUsername());
+        UserInfoResponse userInfoResponse = UserInfoResponse.builder()
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getUsername()) // Check if getUsername() should rather be getEmail()
+                .dateOfBirth(user.getDateOfBirth())
+                .nationality(user.getNationality())
+                .phone(user.getPhone())
+                .profilePicture(user.getProfilePicture())
+                .build();
+        return ResponseEntity.ok(userInfoResponse);
+    } catch (NotFoundException e) {
+        return ResponseEntity.notFound().build();
+    } catch (ClassCastException e) {
+        // Handle case where the cast is incorrect
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+}
+*/
   @GetMapping("/userinfo/{idUser}")
  // @PreAuthorize("hasAuthority('ADMINISTRATOR')")
 
-  @PreAuthorize("hasRole('ADMINISTRATOR') || (hasRole('USER') || hasRole('TEACHER') || hasRole('STUDENT') || hasRole('PROFESSOR'))")
+  @PreAuthorize("hasAuthority('ADMINISTRATOR') || (hasAuthority('USER') || hasAuthority('TEACHER') || hasAuthority('STUDENT') || hasAuthority('PROFESSOR'))")
 
   // @PreAuthorize("hasRole('ADMINISTRATOR') or hasRole('USER') or hasRole('TEACHER') or hasRole('STUDENT') or hasRole('PROFESSOR')  ")
   public ResponseEntity<UserInfoResponse> getUserInfo(@PathVariable String idUser, Authentication authentication) {
