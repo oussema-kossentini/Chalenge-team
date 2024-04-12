@@ -101,7 +101,11 @@ public ResponseEntity<UserInfoResponse> getUserInfo(@PathVariable String idUser,
         // Implement this method to check if the user has the necessary role to access this resource
         // You can extract roles from UserDetails and perform the authorization logic based on your requirements
     } */
+
+
   @PutMapping("/update-image")
+  //hedi mtaa el role  lazem menha
+  //tzid authentication fel methode
     @PreAuthorize("hasAuthority('ADMINISTRATOR') || (hasAuthority('USER') || hasAuthority('TEACHER') || hasAuthority('STUDENT') || hasAuthority('PROFESSOR'))")
     public ResponseEntity<String> updateProfileImage(Authentication authentication, @RequestParam("image") MultipartFile file) throws IOException {
       if (file == null || file.isEmpty()) {
@@ -109,15 +113,19 @@ public ResponseEntity<UserInfoResponse> getUserInfo(@PathVariable String idUser,
       }
       byte[] fileBytes = file.getBytes();
       System.out.println("Received file with size: " + fileBytes.length + " bytes");
+      /*heda hezou */
         String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new IllegalStateException("User not found"));
+
+        /*star el fouk hezou */
 
         user.setProfilePicture(file.getBytes());
         userRepository.save(user);
 
         return ResponseEntity.ok("Profile image updated successfully");
     }
+
     //methode khir maghir id ou taksir ras kenek autehntifier ou andek les role marhbe bik
     /* angular
      */
