@@ -40,6 +40,7 @@ public class Classe implements Serializable {
 
 
     @DBRef
+
     private Specialite specialite;
 
 
