@@ -30,7 +30,7 @@ import java.util.Optional;
 
 import javax.ws.rs.NotFoundException;
 
-
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "http://localhost:4200")
@@ -38,7 +38,8 @@ import javax.ws.rs.NotFoundException;
 public class AuthenticationController {
     @Autowired
     private  AuthenticationService  service;
-
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
     @Autowired
     private   JwtService jwtService;
     @Autowired
@@ -319,7 +320,10 @@ public ResponseEntity<AuthenticationResponse> register(
     user.setFirstName(request.getFirstName());
     user.setLastName(request.getLastName());
     user.setEmail(request.getEmail());
-    user.setPassword(request.getPassword());
+  //  user.setPassword(request.getPassword());
+        String encodedPassword = passwordEncoder.encode(user.getPassword()); // Hacher le mot de passe
+        user.setPassword(encodedPassword); // Définir le mot de passe haché
+        user.setStatue(true);
     user.setDateOfBirth(request.getDateOfBirth());
     user.setNationality(request.getNationality());
     user.setPhone(request.getPhone());

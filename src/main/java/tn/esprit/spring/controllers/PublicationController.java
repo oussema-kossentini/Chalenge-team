@@ -16,10 +16,15 @@ import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.spring.entities.Publication;
 import tn.esprit.spring.entities.QA;
+import tn.esprit.spring.entities.User;
+import tn.esprit.spring.repositories.UserRepository;
 import tn.esprit.spring.services.IPublicationService;
 
 import java.io.File;
@@ -44,11 +49,15 @@ public class PublicationController {
     IPublicationService publicationService;
     @Autowired
     ServletContext context;
-
+    UserRepository userRepository;
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') || (hasAuthority('USER') || hasAuthority('TEACHER') || hasAuthority('STUDENT') || hasAuthority('PROFESSOR'))")
     @PostMapping(value = "/add", consumes = { "multipart/form-data", "application/xml", "application/json" })
-    public ResponseEntity<Response> createPublication(@RequestParam("publication") String publication,
+    public ResponseEntity<Response> createPublication(Authentication authentication,@RequestParam("publication") String publication,
                                                       @RequestParam("file") MultipartFile file) throws JsonParseException, JsonMappingException, Exception {
         System.out.println("Ok .............");
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
         Publication arti = new ObjectMapper().readValue(publication, Publication.class);
         boolean isExit = new File(context.getRealPath("/Images/")).exists();
         if (!isExit) {
@@ -73,11 +82,15 @@ public class PublicationController {
         } else {
             return new ResponseEntity<Response>(HttpStatus.BAD_REQUEST);
         }
+
     }
 
-
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') || (hasAuthority('USER') || hasAuthority('TEACHER') || hasAuthority('STUDENT') || hasAuthority('PROFESSOR'))")
     @GetMapping(path="/Imgarticles/{id}")
-    public byte[] getPhoto(@PathVariable("id") String id) throws Exception{
+    public byte[] getPhoto(Authentication authentication,@PathVariable("id") String id) throws Exception{
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
         Publication publication   = publicationService.getPublicationById(id);
         return Files.readAllBytes(Paths.get(context.getRealPath("/Images/")+publication.getFileName()));
     }
@@ -133,36 +146,55 @@ public class PublicationController {
             Files.write(path, bytes);
         }
     }*/
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') || (hasAuthority('USER') || hasAuthority('TEACHER') || hasAuthority('STUDENT') || hasAuthority('PROFESSOR'))")
     @GetMapping("/retrieve")
-    public List<Publication> getPublications() {
+    public List<Publication> getPublications(Authentication authentication) {
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
         List<Publication> listChambres = publicationService.retrieveAllPublications();
         return listChambres;
     }
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') || (hasAuthority('USER') || hasAuthority('TEACHER') || hasAuthority('STUDENT') || hasAuthority('PROFESSOR'))")
     @DeleteMapping("/remove-publication/{publication-id}")
-    public void removePublication(@PathVariable("publication-id") String chId) {
+    public void removePublication(Authentication authentication,@PathVariable("publication-id") String chId) {
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
         publicationService.removePublication(chId);
     }
-
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') || (hasAuthority('USER') || hasAuthority('TEACHER') || hasAuthority('STUDENT') || hasAuthority('PROFESSOR'))")
     @PutMapping("/modify-Publication")
-    public ResponseEntity<Publication> modifyPublication(@RequestBody Publication publication){
-
+    public ResponseEntity<Publication> modifyPublication(Authentication authentication,@RequestBody Publication publication){
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
         Publication updatedUser = publicationService.modifyPublication(publication); // Assuming there's a method in userService to modify the user
         return ResponseEntity.ok(updatedUser);
     }
-
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') || (hasAuthority('USER') || hasAuthority('TEACHER') || hasAuthority('STUDENT') || hasAuthority('PROFESSOR'))")
     @GetMapping("/get")
-    public Publication gettingPublication(@RequestParam("publication-id") String idPublication){
+    public Publication gettingPublication(Authentication authentication,@RequestParam("publication-id") String idPublication){
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
         return publicationService.getPublicationById(idPublication);
     }
-
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') || (hasAuthority('USER') || hasAuthority('TEACHER') || hasAuthority('STUDENT') || hasAuthority('PROFESSOR'))")
     @GetMapping("/search")
-    public ResponseEntity<List<Publication>> searchPublicationsByTitle(@RequestParam(required = false) String title) {
+    public ResponseEntity<List<Publication>> searchPublicationsByTitle(Authentication authentication,@RequestParam(required = false) String title) {
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
         List<Publication> publications = publicationService.searchPublicationsByTitle(title);
         return ResponseEntity.ok().body(publications);
     }
-
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') || (hasAuthority('USER') || hasAuthority('TEACHER') || hasAuthority('STUDENT') || hasAuthority('PROFESSOR'))")
     @PostMapping(value = "/share/{publication-id}")
-    public ResponseEntity<?> sharePublication(@PathVariable("publication-id") String publicationId) {
+    public ResponseEntity<?> sharePublication(Authentication authentication,@PathVariable("publication-id") String publicationId) {
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
         try {
             // Récupérer la publication à partager en utilisant son identifiant
             Publication publication = publicationService.getPublicationById(publicationId);

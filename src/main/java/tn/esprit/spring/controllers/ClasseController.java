@@ -7,9 +7,13 @@ import com.itextpdf.text.pdf.PdfWriter;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.pdfbox.io.IOUtils;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.spring.entities.User;
 
 import java.io.File;
@@ -31,6 +35,7 @@ import org.springframework.web.bind.annotation.*;
 import tn.esprit.spring.entities.Classe;
 import tn.esprit.spring.entities.Level;
 import tn.esprit.spring.repositories.ClasseRepository;
+import tn.esprit.spring.repositories.UserRepository;
 import tn.esprit.spring.services.IClasseService;
 
 
@@ -45,24 +50,40 @@ public class ClasseController {
 
     IClasseService classeService;
 ClasseRepository classeRepository;
+UserRepository userRepository;
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') || hasAuthority('TEACHER') ||  hasAuthority('PROFESSOR')")
+   // public ResponseEntity<String> updateProfileImage(Authentication authentication, @RequestParam("image") MultipartFile file) throws IOException {
     @PostMapping("add/classe")
-    public Classe addinClasse(@RequestBody Classe us) {
+    public Classe addinClasse(Authentication authentication,@RequestBody Classe us) {
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+
 
         return classeService.addClasse(us);
     }
-
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') || hasAuthority('TEACHER') || hasAuthority('PROFESSOR')")
     @GetMapping("/retrieve-all-classe")
-    public List<Classe> getClasse() {
+    public List<Classe> getClasse(Authentication authentication) {
         log.info("Retrieving all classes");
         List<Classe> listClasse = classeService.retrieveAllClasses();
         log.info("Classes retrieved: {}", listClasse);
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+
         return listClasse;
     }
 
-
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') || hasAuthority('TEACHER') ||hasAuthority('PROFESSOR')")
     @DeleteMapping("/remove-classes/{classe-id}")
-    public void removeChambre(@PathVariable("classe-id") String chId) {
+    public void removeChambre(Authentication authentication,@PathVariable("classe-id") String chId) {
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+
         classeService.removeClasse(chId);
+
     }
 
     //@PutMapping("/modify-classe/{id}")
@@ -71,78 +92,119 @@ ClasseRepository classeRepository;
       //  return classeService.addClasse(c);
 
    // }
-
+   @PreAuthorize("hasAuthority('ADMINISTRATOR')  || hasAuthority('TEACHER')  || hasAuthority('PROFESSOR')")
     @PutMapping("/modify-classe")
-    public ResponseEntity<Classe> modifyUser(@RequestBody Classe classe){
-
+    public ResponseEntity<Classe> modifyUser(Authentication authentication,@RequestBody Classe classe){
+       String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+       User user = userRepository.findByEmail(userEmail)
+               .orElseThrow(() -> new IllegalStateException("User not found"));
     Classe updatedUser = classeService.modifyClasse(classe); // Assuming there's a method in userService to modify the user
         return ResponseEntity.ok(updatedUser);
 }
-
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') || hasAuthority('TEACHER') || hasAuthority('PROFESSOR')")
     @GetMapping("/level")
-    public Level[] getLevels() {
+    public Level[] getLevels(Authentication authentication) {
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
         return Level.values();
     }
 
-
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') || hasAuthority('TEACHER') || hasAuthority('PROFESSOR')")
     @GetMapping("/{id}")
-    public Classe gettingClasse(@RequestParam("classe-id") String idClasse){
+    public Classe gettingClasse(Authentication authentication,@RequestParam("classe-id") String idClasse){
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
         return classeService.getClasseById(idClasse);
     }
 
-
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') ||  hasAuthority('TEACHER')  || hasAuthority('PROFESSOR')")
     @PostMapping("ajouter-affecter/{idSpecialite}")
-    Classe ajouterFoyerEtAffecterAUniversite (@RequestBody Classe classe, @PathVariable String idSpecialite){
+    Classe ajouterFoyerEtAffecterAUniversite (Authentication authentication,@RequestBody Classe classe, @PathVariable String idSpecialite){
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
         return classeService.ajouterFoyerEtAffecterAUniversite(classe,idSpecialite);
     }
 
-
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') || (hasAuthority('USER') || hasAuthority('TEACHER') || hasAuthority('STUDENT') || hasAuthority('PROFESSOR'))")
     @Operation(description = "récupérer toutes les Posts pour un user ")
     @GetMapping("/posts/{idSpecialite}")
-    public ResponseEntity<List<Classe>> getPostsBySpecialite(@PathVariable("idSpecialite") String idSpecialite) {
+    public ResponseEntity<List<Classe>> getPostsBySpecialite(Authentication authentication,@PathVariable("idSpecialite") String idSpecialite) {
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
         List<Classe> posts = classeService.retrievePostsByidUser(idSpecialite);
         return new ResponseEntity<>(posts, HttpStatus.OK);
     }
     //hedhom tjibli list mta3 etudiant  fi wost el classe
-
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @GetMapping("/getEtudiantFromClass/{idClasse}")
-    public List<User> getEtudiantFromClass(@PathVariable("idClasse") String idClasse){
+    public List<User> getEtudiantFromClass(Authentication authentication,@PathVariable("idClasse") String idClasse){
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
         return classeService.getEtudiantFromClass(idClasse);
     }
 //hedhoum tjibli list mta3 el claase
+@PreAuthorize("hasAuthority('ADMINISTRATOR') ")
     @GetMapping("/getProfessorFromClass/{idClasse}")
-    public List<User> getProfessorFromClass(@PathVariable("idClasse") String idClasse){
+    public List<User> getProfessorFromClass(Authentication authentication,@PathVariable("idClasse") String idClasse){
+    String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+    User user = userRepository.findByEmail(userEmail)
+            .orElseThrow(() -> new IllegalStateException("User not found"));
         return classeService.getProfessorFromClass(idClasse);
     }
-
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') ")
     @PostMapping("/affecterUserInClass/{idUser}/{idClasse}")
-    public Classe affecterUserInClass(@PathVariable String idUser,@PathVariable  String idClasse) {
+    public Classe affecterUserInClass(Authentication authentication,@PathVariable String idUser,@PathVariable  String idClasse) {
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
         return classeService.affecterUserInClass(idUser,idClasse);
 
     }
-
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') ")
     @GetMapping("/getEtudiant")
-    public List<User> getEtudiant(){
+    public List<User> getEtudiant(Authentication authentication){
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
         return classeService.getEtudiant();
     }
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') ")
     @GetMapping("/getEnsignat")
-    public List<User> getEnseignat(){
+    public List<User> getEnseignat(Authentication authentication){
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
         return classeService.getEnsignat();
     }
 
 
-
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') ")
     @GetMapping("/classes/{userId}")
-    public List<Classe> getClassesByUserId(@PathVariable String userId) {
+    public List<Classe> getClassesByUserId(Authentication authentication,@PathVariable String userId) {
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
         return classeService.findClassesByUserIds(userId);
     }
-
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') ")
     @DeleteMapping("/deleteAndUnassignSpecialite/{idClasse}")
-    public void deleteClasseAndUnassignSpecialite(@PathVariable String idClasse) {
+    public void deleteClasseAndUnassignSpecialite(Authentication authentication,@PathVariable String idClasse) {
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
         classeService.deleteClasseAndSpecialiteAssociation(idClasse);
     }
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') ")
     @GetMapping("/pdf")
-    public void exportClassesPdf(HttpServletResponse response) throws IOException, DocumentException {
+    public void exportClassesPdf(Authentication authentication,HttpServletResponse response) throws IOException, DocumentException {
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
         // Set the content type and attachment header
         response.setContentType("application/pdf");
         response.setHeader("Content-Disposition", "attachment; filename=\"classes_etudiants.pdf\"");
@@ -193,7 +255,7 @@ ClasseRepository classeRepository;
                 document.add(classeTitle);
 
                 // Récupérer les étudiants de la classe
-                List<User> etudiants = getEtudiantFromClass(classe.getIdClasse());
+                List<User> etudiants = getEtudiantFromClass(authentication,classe.getIdClasse());
 
                 // Créer une table pour les étudiants de cette classe avec 2 colonnes pour Nom et Prénom
                 PdfPTable table = new PdfPTable(2); // Ajustement ici pour 2 colonnes

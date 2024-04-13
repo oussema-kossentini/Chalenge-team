@@ -2,6 +2,9 @@ package tn.esprit.spring.services;
 
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import tn.esprit.spring.dto.SpecialiteDto;
 import tn.esprit.spring.entities.*;
@@ -300,7 +303,7 @@ public class SpecialiteService implements ISpecialiteService{
 
         // Get All student ROLE nombre totale Student
         for (User professeur : userRepository.findAll()) {
-            if (professeur != null && professeur.getRole() != null && professeur.getRole().equals(Role.PROFESSOR)) {
+            if (professeur != null && professeur.getRole() != null && professeur.getRole().equals(Role.TEACHER)) {
                 nombreProfesseur++;
             }
         }
@@ -324,7 +327,7 @@ public class SpecialiteService implements ISpecialiteService{
                 if (Classe != null) {
                     for (String idUser : Classe.getUsersIds()) {
                         User professeur = userRepository.findById(idUser).orElse(null);
-                        if (professeur != null && professeur.getRole() != null && professeur.getRole().equals(Role.PROFESSOR)) {
+                        if (professeur != null && professeur.getRole() != null && professeur.getRole().equals(Role.TEACHER)) {
                             boolean test = false;
                             for (User user : usersParSpecialite) {
                                 if (user != null && user.getIdUser().toString().equals(professeur.getIdUser())) {
@@ -407,6 +410,7 @@ public class SpecialiteService implements ISpecialiteService{
         return specialiteRepository.findAll().stream().map(specialite -> specialite.getTitle()).toList();
     }
 //affichage user yaaa ibtihelll fel nav
+   /*
     @Override
     public String getUserNav(String idUser) {
 
@@ -429,7 +433,7 @@ public class SpecialiteService implements ISpecialiteService{
                                     specialite.getTitle()+" "+classe.getNameClasse();
 
                                 }
-                                else if (user.getRole().equals(Role.PROFESSOR)){
+                                else if (user.getRole().equals(Role.TEACHER)){
                                     return user.getFirstName()+" "+user.getLastName();
                                 }
                             }
@@ -447,9 +451,44 @@ public class SpecialiteService implements ISpecialiteService{
         if (chaineReturn.length()!=0)
             return chaineReturn;
         //System.out.println("hello");
-        return "ADMIN";
+        return "ADMINISTRATOR";
     }
+*/
 
+    @Override
+    public String getUserNav() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("Authenticated user not found"));
+
+        List<Specialite> specialites = specialiteRepository.findAll();
+        String chaineReturn = "";
+
+        for (Specialite specialite : specialites) {
+            for (String idClasse : specialite.getClassesIds()) {
+                Classe classe = classeRepository.findById(idClasse).orElse(null);
+
+                if (classe != null) {
+                    for (String userId : classe.getUsersIds()) {
+                        if (userId.equals(user.getId())) {  // Use user object directly, assuming getId method exists
+                            if (user.getRole().equals(Role.STUDENT)) {
+                                chaineReturn = user.getFirstName() + " " + user.getLastName() + " " +
+                                        classe.getLevel() + " " + specialite.getTitle() + " " + classe.getNameClasse();
+                            } else if (user.getRole().equals(Role.TEACHER)) {
+                                return user.getFirstName() + " " + user.getLastName();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!chaineReturn.isEmpty())
+            return chaineReturn;
+
+        return "ADMINISTRATOR";
+    }
     @Override
     public List<SpecialiteDto> getSpecialiteAndClasseFromProfesseur(String idUser) {
         List<SpecialiteDto> specialiteDtos = new ArrayList<>();
@@ -468,7 +507,7 @@ public class SpecialiteService implements ISpecialiteService{
                         if (userId.toString().equals(idUser.toString())) {
                             User user = userRepository.findById(userId).orElse(null);
                             if (user != null) {
-                                if (user.getRole().equals(Role.PROFESSOR)) {
+                                if (user.getRole().equals(Role.TEACHER)) {
 
                                     specialiteDto.getClasses().add(classe.getNameClasse());
 

@@ -5,9 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.spring.entities.Scheduel;
 import tn.esprit.spring.entities.Session;
+import tn.esprit.spring.entities.User;
+import tn.esprit.spring.repositories.UserRepository;
 import tn.esprit.spring.services.IScheduleService;
 import tn.esprit.spring.services.ISessionService;
 
@@ -21,7 +26,7 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:4200")
 public class SessionController {
     ISessionService sessionService;
-
+UserRepository userRepository;
 
     @CrossOrigin(origins = "http://localhost:4200")
   /*  @PostMapping("add/session")
@@ -42,8 +47,12 @@ public class SessionController {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
     }*/
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') ")
     @PostMapping("add/session")
-    public ResponseEntity<?> addSession(@RequestBody Session session, @RequestParam("idScheduel") String idScheduel, @RequestParam("idSubject") String idSubject) {
+    public ResponseEntity<?> addSession(Authentication authentication, @RequestBody Session session, @RequestParam("idScheduel") String idScheduel, @RequestParam("idSubject") String idSubject) {
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
         try {
 
             // Assuming the method signature of addSession has been updated to accept idSubject as well
@@ -55,15 +64,21 @@ public class SessionController {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
     }
-
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') || (hasAuthority('USER') || hasAuthority('TEACHER') || hasAuthority('STUDENT') || hasAuthority('PROFESSOR'))")
     @GetMapping("/retrieve-all-Session")
-    public List<Session> getSessions() {
+    public List<Session> getSessions(Authentication authentication) {
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
         List<Session> listSessions = sessionService.retrieveAllSessions();
         return listSessions;
     }
-
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') ")
     @DeleteMapping("/remove-session/{session-id}")
-    public void removeSession(@PathVariable("session-id") String chId) {
+    public void removeSession(Authentication authentication,@PathVariable("session-id") String chId) {
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
         sessionService.removeSession(chId);
     }
 
@@ -73,9 +88,13 @@ public class SessionController {
         return sessionService.addSession(c);
 
     }*/
-
+   @PreAuthorize("hasAuthority('ADMINISTRATOR') ")
     @PostMapping("/add-S-SH/{idScheduel}")
-    public ResponseEntity<Session> addScheduelTosss(@RequestBody Session session, @PathVariable String idScheduel) {
+    public ResponseEntity<Session> addScheduelTosss(Authentication authentication,
+                                                    @RequestBody Session session, @PathVariable String idScheduel) {
+       String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+       User user = userRepository.findByEmail(userEmail)
+               .orElseThrow(() -> new IllegalStateException("User not found"));
         try {
 
             Session addedSession = sessionService.addSessionScheduel(session, idScheduel);

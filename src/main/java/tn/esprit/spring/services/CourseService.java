@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-//
+
 @Service
 @AllArgsConstructor
 public class CourseService implements ICourseService {
@@ -88,7 +88,7 @@ public class CourseService implements ICourseService {
             Date endDate = course.getEndDate(); // Get the end date of the course
 
             if (currentDate.after(endDate)) { // If current date is after the end date
-                removeCourse(course.getIdCourse()); // Remove the course
+                removeCourse(course.getIdCourse()); // Remove the coursefff
             }
         }
     }

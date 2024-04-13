@@ -160,7 +160,7 @@ public class ClasseService implements IClasseService {
             for (String idUser : classe.getUsersIds()) {
                 User user = userRepository.findById(idUser).orElse(null);
                 if (user != null) {
-                    if (user.getRole().equals(Role.PROFESSOR))
+                    if (user.getRole().equals(Role.TEACHER))
                         users.add(user);
                 }
 
@@ -212,7 +212,7 @@ public class ClasseService implements IClasseService {
         List<User> users = new ArrayList<>();
 
         for (User user : userRepository.findAll()) {
-            if (user.getRole().equals(Role.PROFESSOR))
+            if (user.getRole().equals(Role.TEACHER))
                 users.add(user);
 
         }
