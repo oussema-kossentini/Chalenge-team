@@ -2,11 +2,12 @@ package tn.esprit.spring.services;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import tn.esprit.spring.entities.Classe;
-import tn.esprit.spring.entities.ContentFormat;
-import tn.esprit.spring.entities.Publication;
+import tn.esprit.spring.entities.*;
 import tn.esprit.spring.repositories.PublicationRepository;
+import tn.esprit.spring.repositories.ReactionRepository;
+import tn.esprit.spring.repositories.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +18,9 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class PublicationService implements IPublicationService {
     PublicationRepository publicationRepository;
+     ReactionRepository reactionRepository;
+     UserRepository userRepository;
+
     // Méthode pour générer un token d'image
     private String generateImageToken() {
         // Générer un UUID (Universal Unique Identifier)
@@ -88,5 +92,49 @@ public class PublicationService implements IPublicationService {
         } else {
         }
     }
+
+    @Override
+    public void reactToPublication(String publicationId, String userId, ReactionType reactionType) {
+        // Récupérer l'utilisateur à partir de l'ID
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Publication publication = publicationRepository.findById(publicationId)
+                .orElseThrow(() -> new RuntimeException("Publication not found"));
+
+        // Recherche de la réaction existante de l'utilisateur pour cette publication
+        Reaction existingReaction = reactionRepository.findByPublicationAndUser(publication, user);
+
+        // Si l'utilisateur a déjà réagi à cette publication, lancez une exception
+        if (existingReaction != null) {
+            throw new RuntimeException("User has already reacted to this publication");
+        }
+
+        // Vérifiez si la publication a déjà été réagit avec un like ou un dislike
+        boolean alreadyLiked = publication.getLikes() > 0;
+        boolean alreadyDisliked = publication.getDislikes() > 0;
+
+        if (reactionType == ReactionType.LIKE) {
+            if (alreadyLiked) {
+                throw new RuntimeException("Publication has already been liked");
+            }
+            if (alreadyDisliked) {
+                publication.setDislikes(publication.getDislikes() - 1);
+            }
+            publication.setLikes(publication.getLikes() + 1);
+        } else { // ReactionType.DISLIKE
+            if (alreadyDisliked) {
+                throw new RuntimeException("Publication has already been disliked");
+            }
+            if (alreadyLiked) {
+                publication.setLikes(publication.getLikes() - 1);
+            }
+            publication.setDislikes(publication.getDislikes() + 1);
+        }
+
+        // Enregistrez la publication mise à jour dans la base de données
+        publicationRepository.save(publication);
+    }
+
 
 }

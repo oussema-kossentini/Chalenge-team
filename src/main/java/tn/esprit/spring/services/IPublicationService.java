@@ -1,9 +1,7 @@
 package tn.esprit.spring.services;
 
 import org.springframework.web.multipart.MultipartFile;
-import tn.esprit.spring.entities.Classe;
-import tn.esprit.spring.entities.ContentFormat;
-import tn.esprit.spring.entities.Publication;
+import tn.esprit.spring.entities.*;
 
 import java.util.List;
 
@@ -15,4 +13,5 @@ public interface IPublicationService {
     public Publication getPublicationById(String idPublication);
     public List<Publication> searchPublicationsByTitle(String title);
     public void sharePublication(String publicationId) ;
+    public void reactToPublication(String publicationId, String userId, ReactionType reactionType);
 }
