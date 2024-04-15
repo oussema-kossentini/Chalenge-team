@@ -19,7 +19,7 @@ public interface ISpecialiteService {
     public Map<String, Float> statProfesseurParSpecialite();
     public List<String> getAllTitles();
 
-    String getUserNav(String idUser);
+    String getUserNav();
 
     List<SpecialiteDto> getSpecialiteAndClasseFromProfesseur(String idUser);
 
