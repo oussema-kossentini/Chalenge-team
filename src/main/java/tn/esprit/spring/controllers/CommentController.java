@@ -28,6 +28,7 @@ public class CommentController {
     ICommentService commentService;
     IPublicationService publicationService;
     UserRepository userRepository;
+    //
     @PreAuthorize("hasAuthority('ADMINISTRATOR') || (hasAuthority('USER') || hasAuthority('TEACHER') || hasAuthority('STUDENT') || hasAuthority('PROFESSOR'))")
 
     @PostMapping("add/comment")
