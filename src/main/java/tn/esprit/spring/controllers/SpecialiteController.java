@@ -20,7 +20,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@RequestMapping("api/specilite")
+@RequestMapping("/api/specilite")
 @CrossOrigin(origins = "http://localhost:4200/**")
 public class SpecialiteController {
 @Autowired

@@ -18,7 +18,7 @@ import java.util.List;
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @CrossOrigin(origins = "http://localhost:4200/**")
-@RequestMapping("api/grades")
+@RequestMapping("/api/grades")
 public class GradeController {
     @Autowired
     IGradeService gradeService;

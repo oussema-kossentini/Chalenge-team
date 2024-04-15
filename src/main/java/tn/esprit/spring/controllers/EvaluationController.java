@@ -20,7 +20,7 @@ import java.util.List;
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @CrossOrigin(origins = "http://localhost:4200/**")
-@RequestMapping("api/evaluations")
+@RequestMapping("/api/evaluations")
 public class EvaluationController {
     IEvaluationService evaluationService;
     EmailService emailService;

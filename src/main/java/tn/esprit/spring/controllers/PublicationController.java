@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@RequestMapping("api/publications")
+@RequestMapping("/api/publications")
 @CrossOrigin(origins = "http://localhost:4200")
 public class PublicationController {
     IPublicationService publicationService;

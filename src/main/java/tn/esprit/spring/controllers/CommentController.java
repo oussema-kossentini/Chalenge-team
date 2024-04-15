@@ -17,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@RequestMapping("api/comments")
+@RequestMapping("/api/comments")
 @CrossOrigin(origins = "http://localhost:4200")
 public class CommentController {
     ICommentService commentService;

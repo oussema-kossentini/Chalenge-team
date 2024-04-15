@@ -16,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@RequestMapping("api/courses")
+@RequestMapping("/api/courses")
 public class CourseController {
     ICourseService courseService;
     @PostMapping("add/course")

@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,10 +24,7 @@ import tn.esprit.spring.entities.User;
 import tn.esprit.spring.repositories.UserRepository;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import javax.ws.rs.NotFoundException;
 
@@ -309,9 +307,90 @@ public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> payload
         }
     }
 */
+  /* @PostMapping(value = "/register", consumes = "multipart/form-data")
+   public ResponseEntity<AuthenticationResponse> register(
+           @RequestPart("request") @Valid RegisterRequest request,
+           @RequestPart(value = "profilePicture", required = false) MultipartFile image) {
 
+       User user = new User();
+       user.setFirstName(request.getFirstName());
+       user.setLastName(request.getLastName());
+       user.setEmail(request.getEmail());
+       user.setPassword(passwordEncoder.encode(request.getPassword()));
+       user.setDateOfBirth(request.getDateOfBirth());
+       user.setNationality(request.getNationality());
+       user.setPhone(request.getPhone());
+       user.setStatue(true); // Assuming the field should be 'status'?
+       user.setRole(String.valueOf(request.getRole())); // Make sure to set the role appropriately
+
+       // Service method to handle registration
+    //   AuthenticationResponse response = service.addUserWithImage(user, image);
+       userRepository.save(user);
+       return ResponseEntity.ok(response);
+   }*/
+
+    /*test lel sswagger */
+   private final PasswordEncoder passwordEncoder;
 
     @PostMapping(value = "/register", consumes = "multipart/form-data")
+    public ResponseEntity<?> register(
+            @RequestPart("request") @Valid RegisterRequest request,
+            @RequestPart(value = "profilePicture", required = false) MultipartFile image) {
+
+        // Create and configure the user object
+        User user = new User();
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setEmail(request.getEmail());
+        System.out.println(request.getPassword());
+        user.setPassword(passwordEncoder.encode(request.getPassword())); // Ensure passwordEncoder is injected
+        user.setDateOfBirth(request.getDateOfBirth());
+        user.setNationality(request.getNationality());
+        user.setPhone(request.getPhone());
+        user.setStatue(true); // Assuming the field should be 'status'
+        user.setRole(String.valueOf(request.getRole()));
+
+        // Handle image storage if provided
+        if (image != null && !image.isEmpty()) {
+            try {
+                byte[] imageBytes = image.getBytes();
+                // Here you would typically use a service to save the image bytes to MongoDB
+                user.setProfilePicture(imageBytes); // Assuming User class has a byte array field for the image
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Error saving image");
+            }
+        }
+
+        // Save user to the repository
+        try {
+            userRepository.save(user);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error registering user");
+        }
+
+        // Generate JWT token after saving the user
+        var userDetails = new org.springframework.security.core.userdetails.User(
+                user.getEmail(), user.getPassword(), new ArrayList<>());
+        String jwtToken = jwtService.generateToken(new HashMap<>(), userDetails); // Ensure jwtService is injected
+
+        // Build and return the authentication response
+        AuthenticationResponse response = AuthenticationResponse.builder()
+                .token(jwtToken)
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .idUser(user.getId().toString()) // Assuming getId() exists
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+
+   /*fook le swagger */
+/*te5dem angular louta*/
+ /*  @PostMapping(value = "/register", consumes = "multipart/form-data")
 public ResponseEntity<AuthenticationResponse> register(
         @ModelAttribute @Valid RegisterRequest request,
         @RequestPart(value = "profilePicture", required = false) MultipartFile image) {
@@ -319,7 +398,10 @@ public ResponseEntity<AuthenticationResponse> register(
     user.setFirstName(request.getFirstName());
     user.setLastName(request.getLastName());
     user.setEmail(request.getEmail());
-    user.setPassword(request.getPassword());
+
+        String encodedPassword = passwordEncoder.encode(request.getPassword()); // Hacher le mot de passe
+        user.setPassword(encodedPassword); // Définir le mot de passe haché
+      //  user.setStatue(true);
     user.setDateOfBirth(request.getDateOfBirth());
     user.setNationality(request.getNationality());
     user.setPhone(request.getPhone());
@@ -332,7 +414,7 @@ public ResponseEntity<AuthenticationResponse> register(
 
     // Return the response entity
     return ResponseEntity.ok(response);
-}
+} */
    // private static final Logger log = (Logger) LoggerFactory.getLogger(AuthenticationService.class);
    // @PreAuthorize("hasRole('ADMINSTRATOR') or hasRole('STUDENT') or hasRole('PROFESSOR')")
     @PostMapping("/logout")

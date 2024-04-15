@@ -16,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@RequestMapping("api/subject")
+@RequestMapping("/api/subject")
 public class SubjectController {
     ISubjectService subjectService;
     @PostMapping("add/subject")

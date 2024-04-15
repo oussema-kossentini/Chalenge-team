@@ -16,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@RequestMapping("api/Content")
+@RequestMapping("/api/Content")
 public class ContentController {
     IContentService contentService;
     @PostMapping("add/Content")
