@@ -8,8 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+
 import java.io.Serializable;
 import java.time.Duration;
 import java.util.Date;
@@ -21,7 +20,6 @@ import java.util.List;
 @NoArgsConstructor
 @Document
 @FieldDefaults(level = AccessLevel.PRIVATE)
-
 public class Evaluation implements Serializable {
     @Id
     String idEvaluation;
@@ -32,7 +30,10 @@ public class Evaluation implements Serializable {
     Date startDate;
     Date endDate;
     boolean statue;
-    Duration duration;
+    long duration ;
+    @Field(targetType = FieldType.STRING)
+    Categorie categorie;
+    boolean accessible =true;
     @DBRef
     Classe classe;
     @DBRef

@@ -15,3 +15,4 @@ public interface IPublicationService {
     public void sharePublication(String publicationId) ;
     public void reactToPublication(String publicationId, String userId, ReactionType reactionType);
 }
+

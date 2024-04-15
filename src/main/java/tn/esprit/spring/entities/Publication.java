@@ -30,7 +30,7 @@ import java.util.Set;
 public class Publication implements Serializable {
     @Id
     String idPublication;
-String title;
+    String title;
     String content;
     String imageToken; // Champ pour stocker le token JWT de l'image
     private Date creationDate;
@@ -49,10 +49,12 @@ private Set<Reaction> reactions = new HashSet<>();
     @JsonIgnore
     private Set<Comment> comments;
     @DBRef
+
     private List<User> dislikedByUsers;
 
     @DBRef
      private List<User> likedByUsers;
+
 
 
 }

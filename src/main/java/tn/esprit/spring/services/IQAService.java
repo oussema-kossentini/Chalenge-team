@@ -11,4 +11,7 @@ public interface IQAService {
     public List<QA> retrieveAllQA();
     public void removeQa(String id);
     public QA modifyQa(QA bloc);
+    void assignQaToEvaluation(String qaId, String evaluationId);
+
+    List<QA> getQaByEvaluationId(String evaluationId);
 }

@@ -13,21 +13,6 @@ public interface ICommentService {
     public void removeComment(String id);
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public Comment modifyComment(Comment bloc);
 
     public Comment addCommentToPublication(String publicationId, Comment comment);
