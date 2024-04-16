@@ -1,6 +1,7 @@
 package tn.esprit.spring.auth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import tn.esprit.spring.configuration.JwtService;
+import tn.esprit.spring.entities.Role;
 import tn.esprit.spring.entities.User;
 import tn.esprit.spring.repositories.UserRepository;
 
@@ -27,6 +29,8 @@ import java.io.IOException;
 import java.util.*;
 
 import javax.ws.rs.NotFoundException;
+
+import static tn.esprit.spring.entities.Role.USER;
 
 
 @RestController
@@ -332,7 +336,7 @@ public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> payload
     /*test lel sswagger */
    private final PasswordEncoder passwordEncoder;
 
-    @PostMapping(value = "/register", consumes = "multipart/form-data")
+  /*  @PostMapping(value = "/register", consumes = "multipart/form-data")
     public ResponseEntity<?> register(
             @RequestPart("request") @Valid RegisterRequest request,
             @RequestPart(value = "profilePicture", required = false) MultipartFile image) {
@@ -386,11 +390,82 @@ public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> payload
 
         return ResponseEntity.ok(response);
     }
+*/
+  @PostMapping(value = "/register", consumes = "multipart/form-data")
+  public ResponseEntity<?> register(
+
+          @RequestPart("request") @Valid @ModelAttribute RegisterRequest request,
+          @RequestPart(value = "profilePicture", required = false) MultipartFile image) {
+
+    // Check for existing email
+      if ( userRepository.findByEmail(request.getEmail()).isPresent()) {
+          return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                  .body("Error: Email address already in use.");
+      }
+
+      // Create and configure the user object
+      User user = new User();
+      user.setFirstName(request.getFirstName());
+      user.setLastName(request.getLastName());
+      user.setEmail(request.getEmail());
+      user.setPassword(passwordEncoder.encode(request.getPassword()));
+      user.setDateOfBirth(request.getDateOfBirth());
+      user.setNationality(request.getNationality());
+      user.setPhone(request.getPhone());
+      user.setStatue(true); // Assuming the field should be 'status'
+
+     // user.setRole(request.getRole() == null ? Role.USER : request.getRole());
+      // Assuming you get role as String from RegisterRequest; otherwise adjust accordingly
+     user.setRole(request.getRole());
+
+      // Handle image storage if provided
+      if (image != null && !image.isEmpty()) {
+          try {
+              byte[] imageBytes = image.getBytes();
+              // Implement service to save image bytes (MongoDB or file system)
+              user.setProfilePicture(imageBytes);
+          } catch (Exception e) {
+              return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                      .body("Error saving image: " + e.getMessage());
+          }
+      }
+
+      // Save user to the repository
+      try {
+          userRepository.save(user);
+      } catch (DataIntegrityViolationException e) {
+          // Handle specific database constraint violation errors
+          return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                  .body("Error registering user: " + e.getMessage());
+      } catch (Exception e) {
+          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                  .body("Error registering user: " + e.getMessage());
+      }
+
+      // Generate JWT token
+    /*  var userDetails = new org.springframework.security.core.userdetails.User(
+              user.getEmail(), user.getPassword(), new ArrayList<>());
+      String jwtToken = jwtService.generateToken(new HashMap<>(), userDetails);*/
+      var jwtToken = jwtService.generateToken(new HashMap<>(), user);
+
+      // Retourner le token JWT dans la réponse
+    //  return AuthenticationResponse.builder().token(jwtToken).build();
+      // Build and return the response
+      AuthenticationResponse response = AuthenticationResponse.builder()
+              .token(jwtToken)
+              .firstName(user.getFirstName())
+              .lastName(user.getLastName())
+              .email(user.getEmail())
+              .idUser(user.getId().toString())
+              .build();
+
+      return ResponseEntity.ok(response);
+  }
 
 
-   /*fook le swagger */
+    /*fook le swagger */
 /*te5dem angular louta*/
- /*  @PostMapping(value = "/register", consumes = "multipart/form-data")
+  /* @PostMapping(value = "/register", consumes = "multipart/form-data")
 public ResponseEntity<AuthenticationResponse> register(
         @ModelAttribute @Valid RegisterRequest request,
         @RequestPart(value = "profilePicture", required = false) MultipartFile image) {
@@ -414,7 +489,7 @@ public ResponseEntity<AuthenticationResponse> register(
 
     // Return the response entity
     return ResponseEntity.ok(response);
-} */
+}*/
    // private static final Logger log = (Logger) LoggerFactory.getLogger(AuthenticationService.class);
    // @PreAuthorize("hasRole('ADMINSTRATOR') or hasRole('STUDENT') or hasRole('PROFESSOR')")
     @PostMapping("/logout")

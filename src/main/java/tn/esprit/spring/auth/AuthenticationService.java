@@ -386,7 +386,7 @@ public boolean verifyResetCode(String email, String code) {
             newUser.setEmail(email);
             newUser.setFirstName(oAuth2User.getAttribute("given_name"));
             newUser.setLastName(oAuth2User.getAttribute("family_name"));
-            newUser.setRole("USER"); // Replace with your desired default role
+           // newUser.setRole("USER"); // Replace with your desired default role
             newUser.setStatue(true); // Set initial status
 
             // Additional attributes

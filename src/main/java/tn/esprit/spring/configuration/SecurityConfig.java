@@ -34,6 +34,11 @@ import tn.esprit.spring.auth.CustomAuthenticationSuccessHandler;
 import java.util.Arrays;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.cfg.CoercionAction;
+import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
+import tn.esprit.spring.entities.Role;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -61,6 +66,16 @@ public class SecurityConfig {
 
 
     };
+
+
+    // Inside a configuration class or method
+    @Bean
+    public ObjectMapper objectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.coercionConfigFor(Role.class)
+                .setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsNull);
+        return mapper;
+    }
 
     @Autowired
     private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;

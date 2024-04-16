@@ -65,8 +65,12 @@ public class User implements UserDetails,Serializable {
     Set<Publication> publications;
     @DBRef
     private List<Evaluation> evaluations;
-    public Role getRole() {
+   /* public Role getRole() {
         return this.role;
+    }*/
+
+    public Role getRole() {
+        return role;
     }
 
     @Override
@@ -106,12 +110,32 @@ public class User implements UserDetails,Serializable {
     public String getId() {
         return this.idUser;
     }
+    public void setRole(Role role) {
+        if (role == null) {
+            this.role = Role.USER; // Default to USER if null
+        } else {
+            this.role = role;
+        }
+    }
 
-    public void setRole(String role) {
+    /*public void setRole(String role) {
         if (role == null || role.trim().isEmpty()) {
             this.role = Role.USER; // Supposez que vous avez une valeur DEFAULT dans votre énumération Role
         } else {
             this.role = Role.valueOf(role.toUpperCase(Locale.ROOT));
         }
-    }
+    }*/
+
+    /*public void setRole(String role) {
+        if (role == null || role.trim().isEmpty()) {
+            this.role = Role.USER; // Définit USER comme valeur par défaut pour les rôles non définis ou incorrects.
+        } else {
+            try {
+                this.role = Role.valueOf(role.toUpperCase(Locale.ROOT)); // Tente de convertir la chaîne de caractères en énumération.
+            } catch (IllegalArgumentException e) {
+                this.role = Role.USER; // Attribue USER en cas d'erreur, par exemple si 'NULL' ou une valeur incorrecte est fournie.
+            }
+        }
+    }*/
+
 }

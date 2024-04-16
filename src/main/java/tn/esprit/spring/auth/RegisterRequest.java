@@ -1,6 +1,8 @@
 package tn.esprit.spring.auth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.FieldType;
 import tn.esprit.spring.entities.Nationality;
 import tn.esprit.spring.entities.Role;
 import lombok.AllArgsConstructor;
@@ -23,7 +25,11 @@ public class RegisterRequest {
     private String dateOfBirth;
     private Nationality nationality;
     private String phone;
-    private Role role;
+   // @Field(targetType = FieldType.STRING)
+ //  private Role role = Role.USER;
+   // In your RegisterRequest.java
+   private Role role = Role.USER; // Default role
+
     @JsonProperty
     private  byte[] profilePicture;
     private Boolean statue;

@@ -111,7 +111,7 @@ private JwtService jwtService;
             user.setEmail(email);
             user.setFirstName(oAuth2User.getAttribute("name"));
 user.setStatue(true);
-user.setRole("");
+//user.setRole("");
             userRepository.save(user);
         }
         return new UserOAuth2User(user, oAuth2User.getAttributes());
