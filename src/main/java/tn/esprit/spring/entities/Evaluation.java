@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
+import tn.esprit.spring.entities.TypeEvaluation;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -19,6 +20,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Document
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Evaluation implements Serializable {
@@ -32,9 +34,10 @@ public class Evaluation implements Serializable {
     Date endDate;
     boolean statue;
     long duration ;
+    @Builder.Default
     @Field(targetType = FieldType.STRING)
-    Categorie categorie;
-    boolean accessible =true;
+    Categorie categorie = Categorie.DEFAULT;
+    boolean accessible = true;
     @DBRef
     Classe classe;
     @DBRef

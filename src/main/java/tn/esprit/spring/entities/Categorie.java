@@ -4,5 +4,6 @@ public enum Categorie {
     MATH,
     INFORMATIQUE,
     HISTOIRE,
-    SCEANCE
+    SCEANCE,
+    DEFAULT
 }

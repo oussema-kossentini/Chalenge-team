@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.spring.entities.Classe;
@@ -14,6 +15,7 @@ import tn.esprit.spring.services.EmailService;
 import tn.esprit.spring.services.IEvaluationService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @AllArgsConstructor
@@ -64,6 +66,14 @@ public class EvaluationController {
     @PostMapping("/assign-evaluation-to-class/{classeId}/{evaluationId}")
     public Evaluation assignEvaluationToClasse(@PathVariable String classeId, @PathVariable String evaluationId){
         return evaluationService.assignEvaluationToClasse(classeId,evaluationId);
+    }
+
+
+    @GetMapping("/evaluations/{userId}")
+    public List<Evaluation> getEvaluationsByUserAndCategory(
+            @PathVariable String userId,
+            @RequestParam String category) {
+        return evaluationService.getEvaluationsByUserAndCategory(userId, category);
     }
 
 

@@ -1,8 +1,10 @@
 package tn.esprit.spring.services;
 
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tn.esprit.spring.entities.Categorie;
 import tn.esprit.spring.entities.Classe;
 import tn.esprit.spring.entities.Evaluation;
 import tn.esprit.spring.entities.User;
@@ -11,14 +13,12 @@ import tn.esprit.spring.repositories.EvaluationRepository;
 import tn.esprit.spring.repositories.UserRepository;
 
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
 public class EvaluationService implements IEvaluationService {
-    EvaluationRepository evaluationRepository;
+   EvaluationRepository evaluationRepository;
     UserRepository userRepository;
     ClasseRepository classeRepository;
     EmailService emailService;
@@ -91,4 +91,13 @@ public class EvaluationService implements IEvaluationService {
     public Evaluation modifyEvaluation(Evaluation evaluation) {
         return evaluationRepository.save(evaluation);
     }
+
+
+
+
+    @Override
+    public List<Evaluation> getEvaluationsByUserAndCategory(String userId, String category) {
+        return evaluationRepository.findByUserIdAndCategorie(userId, category);
+    }
+
 }
