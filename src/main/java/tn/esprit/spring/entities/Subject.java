@@ -19,9 +19,7 @@ public class Subject implements Serializable {
    @Id
    String idSubject;
    String subjectName;
-    @DBRef
-    Set<Session> sessions;
 
-    @DBRef
-     Set<Course> courses;
+
+
 }

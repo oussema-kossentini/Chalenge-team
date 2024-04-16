@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.spring.entities.Content;
 import tn.esprit.spring.entities.Course;
+import tn.esprit.spring.entities.Scheduel;
 import tn.esprit.spring.entities.User;
 import tn.esprit.spring.repositories.UserRepository;
 import tn.esprit.spring.services.ICourseService;
@@ -40,7 +41,22 @@ public class CourseController {
         String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new IllegalStateException("User not found"));
+
+
         return courseService.addCourse(us);
+    }
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')  ")
+    @GetMapping("/{courseId}")
+    public ResponseEntity<Course> getCourseById(Authentication authentication,@PathVariable String courseId) {
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+        try {
+            Course course = courseService.getCourseById(courseId);
+            return ResponseEntity.ok(course);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
     @PreAuthorize("hasAuthority('ADMINISTRATOR') || (hasAuthority('USER') || hasAuthority('TEACHER') || hasAuthority('STUDENT') || hasAuthority('PROFESSOR'))")
     @GetMapping("/retrieve-all-courses")

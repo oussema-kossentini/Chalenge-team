@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ISessionService {
     // boolean addSession(Session session, String idScheduel, String idSubject);
-    public Session addSession(Session session, String idScheduel, String idSubject);
+    public Session addSession(Session session, String idScheduel, String idCourse);
     public List<Session> retrieveAllSessions();
 
     public void removeSession(String id);

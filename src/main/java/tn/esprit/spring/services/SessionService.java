@@ -3,9 +3,11 @@ package tn.esprit.spring.services;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tn.esprit.spring.entities.Course;
 import tn.esprit.spring.entities.Scheduel;
 import tn.esprit.spring.entities.Session;
 import tn.esprit.spring.entities.Subject;
+import tn.esprit.spring.repositories.CourseRepository;
 import tn.esprit.spring.repositories.ScheduleRepository;
 import tn.esprit.spring.repositories.SessionRepository;
 import tn.esprit.spring.repositories.SubjectRepository;
@@ -20,6 +22,7 @@ public class SessionService implements ISessionService{
     SessionRepository sessionRepository;
     ScheduleRepository scheduleRepository ;
     SubjectRepository subjectRepository;
+    CourseRepository courseRepository;
   /*  @Transactional
     public boolean addSession(Session session, String idScheduel, String idSubject) {
         Optional<Scheduel> scheduelOptional = scheduleRepository.findById(idScheduel);
@@ -58,13 +61,13 @@ public class SessionService implements ISessionService{
     }*/
 
     @Transactional
-    public Session addSession(Session session, String idScheduel, String idSubject) {
-        Optional<Subject> subjectOptional = subjectRepository.findById(idSubject);
+    public Session addSession(Session session, String idScheduel, String idCourse) {
+        Optional<Course> courseOptional = courseRepository.findById(idCourse);
         Optional<Scheduel> ScheduelOptional = scheduleRepository.findById(idScheduel);
 
-        if (subjectOptional.isPresent() && ScheduelOptional.isPresent()) {
+        if (courseOptional.isPresent() && ScheduelOptional.isPresent()) {
             Scheduel schedule = ScheduelOptional.get();
-            Subject subject = subjectOptional.get();
+            Course subject = courseOptional.get();
 
             // Vérification de l'existence d'une session au même horaire, jour et vérification que le planning est différent
             List<Session> existingSessions = sessionRepository.findByDayAndDebutHourAndEndHour(
@@ -82,7 +85,7 @@ public class SessionService implements ISessionService{
 
             return sessionRepository.save(session);
         } else {
-            throw new RuntimeException("Sujet avec id " + idSubject + " ou Planning avec id " + idScheduel + " non trouvé.");
+            throw new RuntimeException("Sujet avec id " + idCourse + " ou Planning avec id " + idScheduel + " non trouvé.");
         }
     }
 

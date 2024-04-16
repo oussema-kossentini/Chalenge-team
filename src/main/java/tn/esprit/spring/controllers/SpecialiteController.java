@@ -69,6 +69,7 @@ public class SpecialiteController {
         String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new IllegalStateException("User not found"));
+
         Specialite updatedUser = specialiteService.modifySpecialite(classe); // Assuming there's a method in userService to modify the user
         return ResponseEntity.ok(updatedUser);
     }

@@ -49,14 +49,14 @@ UserRepository userRepository;
     }*/
     @PreAuthorize("hasAuthority('ADMINISTRATOR') ")
     @PostMapping("add/session")
-    public ResponseEntity<?> addSession(Authentication authentication, @RequestBody Session session, @RequestParam("idScheduel") String idScheduel, @RequestParam("idSubject") String idSubject) {
+    public ResponseEntity<?> addSession(Authentication authentication, @RequestBody Session session, @RequestParam("idScheduel") String idScheduel, @RequestParam("idCourse") String idCourse) {
         String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new IllegalStateException("User not found"));
         try {
 
             // Assuming the method signature of addSession has been updated to accept idSubject as well
-            Session addedSession = sessionService.addSession(session, idScheduel, idSubject);
+            Session addedSession = sessionService.addSession(session, idScheduel, idCourse);
             return ResponseEntity.ok(addedSession);
         } catch (RuntimeException e) {
             // Consider logging the exception here for debugging purposes

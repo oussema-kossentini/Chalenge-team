@@ -27,9 +27,9 @@ public class Course implements Serializable {
     Date debutDate;
     Date endDate;
     int level;
-    @DBRef
-    Subject subject;
 
+    @DBRef
+    Set<Session> sessions;
     @DBRef
     Set<Content> contents;
 

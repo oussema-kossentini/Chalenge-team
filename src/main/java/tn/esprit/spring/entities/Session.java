@@ -38,5 +38,5 @@ public class Session implements Serializable {
     private Scheduel schedule;
     @DBRef
     // @JsonBackReference
-    private Subject subject;
+    private Course subject;
 }
