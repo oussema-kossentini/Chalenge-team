@@ -36,6 +36,7 @@ public class ScheduleController {
                 .orElseThrow(() -> new IllegalStateException("User not found"));
         return scheduleService.addSchedule(us);
     }
+
     @PreAuthorize("hasAuthority('ADMINISTRATOR') || (hasAuthority('USER') || hasAuthority('TEACHER') || hasAuthority('STUDENT') || hasAuthority('PROFESSOR'))")
     @GetMapping("/retrieve-all-scheduels")
     public List<Scheduel> getChambres(Authentication authentication) {
