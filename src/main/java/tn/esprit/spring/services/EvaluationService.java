@@ -1,8 +1,10 @@
 package tn.esprit.spring.services;
 
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tn.esprit.spring.entities.Categorie;
 import tn.esprit.spring.entities.Classe;
 import tn.esprit.spring.entities.Evaluation;
 import tn.esprit.spring.entities.User;
@@ -10,10 +12,7 @@ import tn.esprit.spring.repositories.ClasseRepository;
 import tn.esprit.spring.repositories.EvaluationRepository;
 import tn.esprit.spring.repositories.UserRepository;
 
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -39,8 +38,7 @@ public class EvaluationService implements IEvaluationService {
         }
         user.getEvaluations().add(evaluation);
         userRepository.save(user);
-        emailService.
-                sendEmail(user.getEmail(),"Evaluation link ","http://localhost:4200/evaluation-assessment/"+userId+"/"+evaluationId);
+        emailService.sendEmail(user.getEmail(),"Evaluation link ","http://localhost:4200/evaluation-assessment/"+userId+"/"+evaluationId);
         return user;
     }
 
@@ -56,39 +54,46 @@ public class EvaluationService implements IEvaluationService {
         Classe aClass = classeRepository.findById(classeId).orElseThrow(() -> new RuntimeException("could not find class"));
         evaluation.setClasse(aClass);
         return evaluationRepository.save(evaluation);
-
     }
-
-
 
     @Override
     public List<Evaluation> retrieveAllEvaluations() {
         return evaluationRepository.findAll();
-
     }
 
     @Override
     @Transactional
     public void removeEvaluation(String id) {
         evaluationRepository.deleteById(id);
-
     }
+
     public void updateEvaluationAccessibility() {
         List<Evaluation> evaluations = evaluationRepository.findAll();
         for (Evaluation evaluation : evaluations) {
             evaluation.setAccessible(isEvaluationAccessible(evaluation));
-           // System.out.println(evaluation.isAccessible());
             evaluationRepository.save(evaluation);
         }
     }
 
     private boolean isEvaluationAccessible(Evaluation evaluation) {
         Date now = new Date();
-        return evaluation.getStartDate().before(now) && evaluation.getEndDate().after(now);
+        Date startDate = evaluation.getStartDate();
+        Date endDate = evaluation.getEndDate();
+
+        // Vérifier si startDate et endDate sont non nulles
+        if (startDate != null && endDate != null) {
+            return startDate.before(now) && endDate.after(now);
+        } else {
+            // Si startDate ou endDate est null, l'évaluation n'est pas accessible
+            return false;
+        }
     }
 
     @Override
     public Evaluation modifyEvaluation(Evaluation evaluation) {
         return evaluationRepository.save(evaluation);
     }
+
+
+
 }
