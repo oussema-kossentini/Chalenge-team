@@ -1,7 +1,13 @@
 package tn.esprit.spring.auth;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.access.prepost.PreAuthorize;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,12 +24,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import tn.esprit.spring.configuration.JwtService;
+import tn.esprit.spring.entities.Classe;
 import tn.esprit.spring.entities.Role;
 import tn.esprit.spring.entities.User;
 import tn.esprit.spring.repositories.UserRepository;
+import tn.esprit.spring.services.UserService;
 
 import java.io.IOException;
 import java.util.*;
@@ -391,6 +400,25 @@ public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> payload
         return ResponseEntity.ok(response);
     }
 */
+
+    @GetMapping("/roleuser")
+    public ResponseEntity<String> recupererRoleUser(Authentication authentication) {
+        String userEmail = ((User) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+        return ResponseEntity.ok(user.getRole().name());
+    }
+
+   // @PreAuthorize("hasAuthority('ADMINISTRATOR')  || hasAuthority('TEACHER')  || hasAuthority('PROFESSOR')")
+@Autowired
+    UserService userService;
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') || hasAnyAuthority('USER', 'TEACHER', 'STUDENT', 'PROFESSOR')")
+    @PutMapping("/modifyInfoUserConnected")
+    public ResponseEntity<User> modifyUser(Authentication authentication, @RequestBody User updatedUser) {
+        String userEmail = authentication.getName();
+        User user = userService.modifyUserCN(userEmail, updatedUser);
+        return ResponseEntity.ok(user);
+    }
   @PostMapping(value = "/register", consumes = "multipart/form-data")
   public ResponseEntity<?> register(
 
@@ -462,6 +490,125 @@ public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> payload
       return ResponseEntity.ok(response);
   }
 
+    @PostMapping("/facebook")
+    public ResponseEntity<AuthenticationResponse> signInWithFacebook(@RequestBody String accessToken) {
+        // For demonstration purposes, let's assume the authentication is successful
+        AuthenticationResponse response = new AuthenticationResponse();
+        System.out.println("Access Token received from Facebook: " + accessToken);
+
+        try {
+            // Use the Facebook Graph API to retrieve user information
+            String userInfoUrl = "https://graph.facebook.com/me?fields=id,name,email&access_token=" + accessToken;
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<Map<String, Object>> userInfoResponse = restTemplate.exchange(
+                    userInfoUrl,
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<Map<String, Object>>() {
+                    });
+
+            if (userInfoResponse.getStatusCode() == HttpStatus.OK) {
+                System.out.println("User Info received from Facebook: " + userInfoResponse);
+                Map<String, Object> userInfo = userInfoResponse.getBody();
+                System.out.println("User Info received from Facebook: " + userInfo);
+                String email = (String) userInfo.get("email");
+                String name = (String) userInfo.get("name");
+
+                // Check if user exists with this email
+                User user = userRepository.findByEmail(email).orElse(null);
+                if (user == null) {
+                    // Create new user
+                    user = new User();
+                    user.setEmail(email);
+                    user.setFirstName(name);
+                    user.setRole(Role.USER);
+                    user.setPassword(passwordEncoder.encode("facebook")); // Set default password for Facebook users
+                    user.setStatue(true);
+                    userRepository.save(user);
+                }
+
+                // Generate JWT token
+                String jwtToken = jwtService.generateToken(new HashMap<>(), user);
+
+                response.setToken(jwtToken);
+                response.setEmail(email);
+                response.setFirstName(name);
+
+            } else {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to authenticate with Facebook");
+            }
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to authenticate with Facebook");
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/google")
+    public ResponseEntity<AuthenticationResponse> signInWithGoogle( @RequestBody String token){
+        // For demonstration purposes, let's assume the authentication is successful
+        AuthenticationResponse response = new AuthenticationResponse();
+        System.out.println("Token received from Google: " + token);
+
+        try {
+            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
+                    .setAudience(Collections.singletonList("734402579346-l4b5td04g4oam96n908l8qpbulqp9gjh.apps.googleusercontent.com")) // Replace with your Google client ID
+                    .build();
+
+            GoogleIdToken idToken = verifier.verify(token);
+            if (idToken != null) {
+                GoogleIdToken.Payload payload = idToken.getPayload();
+                String email = payload.getEmail();
+                String name = (String) payload.get("given_name");
+                String familyName = (String) payload.get("family_name");
+
+                //check if user exist with this email
+                User user = userRepository.findByEmail(email).orElse(null);
+                if(user == null){
+                    //create new user
+                    user = new User();
+                    user.setEmail(email);
+                    user.setFirstName(name);
+                    user.setLastName(familyName);
+                    user.setRole(Role.USER);
+                    user.setPassword(passwordEncoder.encode("google"));
+                    user.setStatue(true);
+                    userRepository.save(user);
+                }
+
+                //generate jwt token
+                String jwtToken = jwtService.generateToken(new HashMap<>(), user);
+
+                response.setToken(jwtToken);
+                response.setEmail(email);
+                response.setFirstName(name);
+                response.setLastName(familyName);
+
+
+            } else {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to authenticate with Google");
+
+
+            }
+
+        }catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to authenticate with Google");
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/authenticateGoogle")
+    public ResponseEntity<AuthenticationResponse> authenticateGoogle(@RequestBody AuthenticateRequest request) {
+        // Appel au service pour effectuer l'authentification
+        try {
+            AuthenticationResponse response = service.authenticateWithGoole(request.email);
+            return ResponseEntity.ok(response);
+        } catch (ResponseStatusException e) {
+            // Propagation de l'exception gérée dans le service
+            throw e;
+        }
+    }
 
     /*fook le swagger */
 /*te5dem angular louta*/

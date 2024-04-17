@@ -1,4 +1,5 @@
 package tn.esprit.spring.controllers;
+import jakarta.validation.constraints.NotNull;
 import org.apache.coyote.BadRequestException;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -15,8 +16,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,11 +29,14 @@ import tn.esprit.spring.entities.Role;
 import tn.esprit.spring.entities.User;
 import tn.esprit.spring.repositories.UserRepository;
 import tn.esprit.spring.services.IUserService;
+import tn.esprit.spring.services.UserService;
 
 import java.util.*;
 
 
 import java.io.IOException;
+
+//import static com.sun.beans.introspect.PropertyInfo.Name.required;
 
 @RestController
 @RequestMapping("/api/users")
@@ -186,20 +192,63 @@ public class UserController {
 */
 
 
-    @PreAuthorize("hasRole('ADMINSTRATOR')")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @GetMapping("/retrieve-all-users")
-    public List<User> getUsers() {
+    public List<User> getUsers(Authentication authentication) {
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+
         return userService.retrieveAllUsers();
     }
+
+
+
+   /* @PreAuthorize("hasAuthority('ADMINISTRATOR') || hasAnyAuthority('USER', 'TEACHER', 'STUDENT', 'PROFESSOR')")
+    @PutMapping("/modifyInfoUserConnected")
+    public ResponseEntity<User> modifyUser(Authentication authentication, @RequestBody User updatedUser) {
+        String userEmail = authentication.getName();
+        User user = userService.modifyUserCN(userEmail, updatedUser);
+        return ResponseEntity.ok(user);
+    }*/
+
+
+
 
     /*@DeleteMapping("/remove-user/{user-id}")
     public ResponseEntity<Void> removeUser(@PathVariable("user-id") String userId) {
         userService.removeUser(userId);
         return ResponseEntity.ok().build();
     }*/
+
+    @GetMapping("/roleuser")
+    public void recuperroleuser(@PathVariable("userId") Authentication authentication) {
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+
+
+    }
+
+
+
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @DeleteMapping("/remove-user/{userId}")
-    public void removeUser(@PathVariable("userId") String userId) {
+    public void removeUser(@PathVariable("userId") String userId,Authentication authentication) {
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+
         userService.removeUser(userId);
+    }
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
+    @PutMapping(value = "/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<User> updateUser(
+            @PathVariable String id,
+            @RequestPart("user") @Valid @NotNull User userDetails, // Ensure validation and non-null
+            @RequestPart(value = "profilePicture", required = false) MultipartFile image) throws Exception {
+        User updatedUser = userService.updateUser(id, userDetails, image);
+        return ResponseEntity.ok(updatedUser);
     }
 
 
@@ -214,44 +263,32 @@ public class UserController {
         User updatedUser = userService.addUser(user); // Cette méthode pourrait nécessiter une logique distincte pour "mettre à jour" vs "ajouter"
         return ResponseEntity.ok(updatedUser);
     }*/
+
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
     @PutMapping("/modify-user/{idUser}")
-    public ResponseEntity<User> modifyUser(
-            @PathVariable("idUser") String idUser,
-            @RequestParam String userJson, // User details as JSON string
-            @RequestParam(value = "image", required = false) MultipartFile image
-    ) throws Exception {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            User updatedUserDetails = mapper.readValue(userJson, User.class); // Parse JSON to User object
+    public ResponseEntity<User> modifyUser(@PathVariable("idUser") String idUser,
+                                           @RequestParam("userJson") String userJson,
+                                           @RequestParam(value = "image", required = false) MultipartFile image) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        User updatedUserDetails = mapper.readValue(userJson, User.class);
 
-            return userRepository.findById(idUser).map(existingUser -> {
-
-                try {
-                    // Update fields with new values
-                    existingUser.setFirstName(updatedUserDetails.getFirstName());
-                    existingUser.setLastName(updatedUserDetails.getLastName());
-                    // ... Update other fields as needed
-
-                    // Update profile picture if a new image is provided
-                    if (image != null && !image.isEmpty()) {
-                        byte[] imageBytes = image.getBytes();
-                        existingUser.setProfilePicture(imageBytes);
+        return userRepository.findById(idUser)
+                .map(existingUser -> {
+                    try {
+                        existingUser.setFirstName(updatedUserDetails.getFirstName());
+                        existingUser.setLastName(updatedUserDetails.getLastName());
+                        if (image != null && !image.isEmpty()) {
+                            byte[] imageBytes = image.getBytes();
+                            existingUser.setProfilePicture(imageBytes);
+                        }
+                        User savedUser = userRepository.save(existingUser);
+                        return ResponseEntity.ok(savedUser);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Error processing image", e);
                     }
-
-                    // Save changes to the database
-                    User savedUser = userRepository.save(existingUser);
-                    return ResponseEntity.ok(savedUser); // Return updated user with 200 OK status
-
-                } catch (IOException e) {
-                    throw new RuntimeException("Error processing image", e);
-                }
-
-            }).orElseThrow(() -> new NoSuchElementException("User not found with ID " + idUser));
-
-        } catch (JsonProcessingException e) {
-            throw new Exception("Invalid user data format", e);
-        }
+                }).orElseThrow(() -> new NoSuchElementException("User not found with ID " + idUser));
     }
+
 
 
 
