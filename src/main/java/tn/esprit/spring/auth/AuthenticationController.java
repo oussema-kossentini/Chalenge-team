@@ -444,7 +444,7 @@ public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> payload
         }
     }
 
-
+//
     // @PreAuthorize("hasAuthority('ADMINISTRATOR')  || hasAuthority('TEACHER')  || hasAuthority('PROFESSOR')")
 @Autowired
     UserService userService;
