@@ -76,6 +76,31 @@ public class AuthenticationService {
         }
         return false;
     }
+
+    public AuthenticationResponse authenticateWithGoole(String email){
+        try {
+            // Vérifier d'abord si l'email existe dans la base de données
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new UsernameNotFoundException("Email not found: " + email));
+
+
+            // Générer le token JWT pour l'utilisateur authentifié
+            String jwtToken = jwtService.generateToken(new HashMap<>(), user);
+
+            // Construire et retourner la réponse
+            return new AuthenticationResponse(jwtToken, user.getFirstName(), user.getLastName(), user.getEmail(),user.getIdUser());
+        } catch (UsernameNotFoundException e) {
+            // Gestion spécifique lorsque l'email n'est pas trouvé
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (BadCredentialsException e) {
+            // Gestion spécifique lorsque le mot de passe est invalide
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid password");
+        } catch (Exception e) {
+            // Gestion des autres erreurs
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Authentication failed");
+        }
+
+    }
 /*
     public boolean verifyResetCode(String email,String code) {
         Optional<User> userOptional = userRepository.findByEmail(email);

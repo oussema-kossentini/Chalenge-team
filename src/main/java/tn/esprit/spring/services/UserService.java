@@ -32,7 +32,8 @@ public class UserService implements IUserService {
     UserRepository userRepository;
     private  final  EmailService emailService;
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    private
+    final BCryptPasswordEncoder passwordEncoder;
     @Autowired
     private JwtService jwtService;
     private final Path rootLocation = Paths.get("path/to/your/uploaded/images");
@@ -41,6 +42,52 @@ public class UserService implements IUserService {
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
         return user.getRole();
     }*/
+
+
+    public User updateUser(String userId, User userDetails, MultipartFile imageFile) throws Exception {
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException("User not found with id: " + userId));
+
+        // Update user properties
+        existingUser.setFirstName(userDetails.getFirstName());
+        existingUser.setLastName(userDetails.getLastName());
+        existingUser.setEmail(userDetails.getEmail());
+        existingUser.setDateOfBirth(userDetails.getDateOfBirth());
+        existingUser.setNationality(userDetails.getNationality());
+        existingUser.setPhone(userDetails.getPhone());
+        existingUser.setStatue(userDetails.isStatue());
+        existingUser.setRole(userDetails.getRole());
+
+        // Process the image file
+        if (imageFile != null && !imageFile.isEmpty()) {
+            try {
+                existingUser.setProfilePicture(imageFile.getBytes());
+            } catch (IOException e) {
+                // Log the exception and consider how to handle it, perhaps returning a custom error response
+                //log.error("Error storing user image", e);
+                throw new Exception("Error storing user image", e);
+            }
+        }
+
+        // Save and return the updated user
+        return userRepository.save(existingUser);
+    }
+
+    public User modifyUserCN(String userEmail, User updatedUser) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+
+        // Mettez à jour les champs de l'utilisateur avec les nouvelles informations
+        user.setFirstName(updatedUser.getFirstName());
+        user.setLastName(updatedUser.getLastName());
+        user.setEmail(updatedUser.getEmail());
+        user.setDateOfBirth(updatedUser.getDateOfBirth());
+        user.setNationality(updatedUser.getNationality());
+        user.setPhone(updatedUser.getPhone());
+        // Mettez à jour d'autres champs au besoin
+
+        return userRepository.save(user);
+    }
     public User addUserimage(User user, MultipartFile image) {
         if (image != null && !image.isEmpty()) {
             try {
