@@ -4,16 +4,19 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.spring.entities.Classe;
 import tn.esprit.spring.entities.Content;
+import tn.esprit.spring.entities.Course;
 import tn.esprit.spring.entities.User;
 import tn.esprit.spring.repositories.UserRepository;
 import tn.esprit.spring.services.IClasseService;
 import tn.esprit.spring.services.IContentService;
+import tn.esprit.spring.services.ICourseService;
 
 import java.util.List;
 
@@ -25,6 +28,8 @@ import java.util.List;
 public class ContentController {
     IContentService contentService;
     UserRepository userRepository;
+    ICourseService courseService;
+
     @PreAuthorize("hasAuthority('ADMINISTRATOR')  || hasAuthority('TEACHER')  || hasAuthority('PROFESSOR')")
 
     @PostMapping("add/Content")
@@ -63,5 +68,18 @@ public class ContentController {
         c.setIdContent(id);
         return contentService.addContent(c);
 
+    }
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') || (hasAuthority('USER') || hasAuthority('TEACHER') || hasAuthority('STUDENT') || hasAuthority('PROFESSOR'))")
+    @GetMapping("/{contentId}")
+    public ResponseEntity<Content> getContentById(Authentication authentication, @PathVariable String contentId) {
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+        try {
+            Content content = courseService.getContentByIId(contentId);
+            return ResponseEntity.ok(content);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

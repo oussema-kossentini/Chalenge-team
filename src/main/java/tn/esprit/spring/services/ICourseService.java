@@ -19,4 +19,6 @@ public interface ICourseService {
     public Course addContentToCourse(String courseId, Content content)  ;
 
     public Set<Content> getContentsOfCourse(String courseId) ;
+
+    public Content getContentByIId(String contentId);
 }

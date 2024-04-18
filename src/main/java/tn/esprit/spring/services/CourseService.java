@@ -5,6 +5,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import tn.esprit.spring.entities.Content;
 import tn.esprit.spring.entities.Course;
+import tn.esprit.spring.repositories.ContentRepository;
 import tn.esprit.spring.repositories.CourseRepository;
 
 import java.util.Date;
@@ -18,6 +19,8 @@ import java.util.concurrent.TimeUnit;
 public class CourseService implements ICourseService {
 
     private final CourseRepository courseRepository;
+    private final ContentRepository contentRepository;
+
 //test jaser
     // Define the expiration period for courses in minutes
     private static final long COURSE_EXPIRY_PERIOD_IN_MINUTES = 30; // Example: 30 minutes
@@ -91,5 +94,11 @@ public class CourseService implements ICourseService {
                 removeCourse(course.getIdCourse()); // Remove the coursefff
             }
         }
+    }
+
+    @Override
+    public Content getContentByIId(String contentId) {
+        return contentRepository.findById(contentId)
+                .orElseThrow(() -> new RuntimeException("Course not found with id: " + contentId));
     }
 }
