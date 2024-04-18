@@ -545,14 +545,14 @@ public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> payload
     }
 
     @PostMapping("/google")
-    public ResponseEntity<AuthenticationResponse> signInWithGoogle( @RequestBody String token){
+    public ResponseEntity<AuthenticationResponse> signInWithGoogle(  @RequestBody String token){
         // For demonstration purposes, let's assume the authentication is successful
         AuthenticationResponse response = new AuthenticationResponse();
         System.out.println("Token received from Google: " + token);
 
         try {
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
-                    .setAudience(Collections.singletonList("734402579346-l4b5td04g4oam96n908l8qpbulqp9gjh.apps.googleusercontent.com")) // Replace with your Google client ID
+                    .setAudience(Collections.singletonList("896713448835-jmsg22uggotbi02tm66voprbv75ruqih.apps.googleusercontent.com")) // Replace with your Google client ID
                     .build();
 
             GoogleIdToken idToken = verifier.verify(token);
@@ -583,10 +583,6 @@ public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> payload
                 response.setEmail(email);
                 response.setFirstName(name);
                 response.setLastName(familyName);
-
-
-            } else {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to authenticate with Google");
 
 
             }
