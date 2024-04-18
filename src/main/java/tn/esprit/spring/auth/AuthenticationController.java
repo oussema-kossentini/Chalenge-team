@@ -408,8 +408,44 @@ public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> payload
                 .orElseThrow(() -> new IllegalStateException("User not found"));
         return ResponseEntity.ok(user.getRole().name());
     }
+    @PutMapping("/updateStatus")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
+    public ResponseEntity<String> updateBanStatus(@RequestParam String userEmail, @RequestParam boolean status) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
 
-   // @PreAuthorize("hasAuthority('ADMINISTRATOR')  || hasAuthority('TEACHER')  || hasAuthority('PROFESSOR')")
+        user.setStatue(status);
+        userRepository.save(user);
+
+        return ResponseEntity.ok("User ban status updated to: " + status);
+    }
+    @PutMapping("/affecterRole")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR')")
+    public ResponseEntity<String> affecterRoleUser(
+            @RequestParam("userEmail") String userEmail,
+            @RequestParam("userRole") String userRole,
+            Authentication authentication) {
+
+
+        // Trouver l'utilisateur par son email
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+
+        // Essayer de modifier le rôle de l'utilisateur
+        try {
+            System.out.println("test1");
+            Role role = Role.valueOf(userRole.toUpperCase()); // Convertir en majuscules pour éviter les erreurs de casse
+            System.out.println("test");
+            user.setRole(role);
+            userRepository.save(user); // Mise à jour de l'utilisateur dans la base de données
+            return ResponseEntity.ok("Role updated successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Invalid role provided");
+        }
+    }
+
+
+    // @PreAuthorize("hasAuthority('ADMINISTRATOR')  || hasAuthority('TEACHER')  || hasAuthority('PROFESSOR')")
 @Autowired
     UserService userService;
     @PreAuthorize("hasAuthority('ADMINISTRATOR') || hasAnyAuthority('USER', 'TEACHER', 'STUDENT', 'PROFESSOR')")

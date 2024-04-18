@@ -8,6 +8,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.convert.converter.GenericConverter;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.format.FormatterRegistry;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -43,6 +47,14 @@ public class CourszellobackApplication  implements WebMvcConfigurer {
 				.maxAge(3600); // How long the response from a pre-flight request can be cached by clients.
 	}
 */
+	@ControllerAdvice
+	public class GlobalControllerAdvice {
+		@RequestMapping(method = RequestMethod.OPTIONS)
+		public ResponseEntity handleOptions() {
+			return ResponseEntity.ok().build();
+		}
+	}
+
 	@Override
 	public void addFormatters(FormatterRegistry registry) {
 		registry.addConverter(new MultipartFileToByteArrayConverter());
