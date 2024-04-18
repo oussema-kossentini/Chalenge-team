@@ -19,7 +19,7 @@ public class Content implements Serializable {
 
     private String title;
 
-    private byte[] fileData;
+    private String body;
 
     @JsonIgnore
     @DBRef
