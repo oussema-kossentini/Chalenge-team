@@ -2,6 +2,7 @@ package tn.esprit.spring.services;
 
 import tn.esprit.spring.entities.Classe;
 import tn.esprit.spring.entities.Evaluation;
+import tn.esprit.spring.entities.EvaluationAttempts;
 import tn.esprit.spring.entities.User;
 
 import java.util.List;
@@ -16,5 +17,11 @@ public interface IEvaluationService {
     Evaluation getEvaluationById(String evaluationId);
 
     Evaluation assignEvaluationToClasse(String classeId, String evaluationId);
+
+    List<EvaluationAttempts> getEvaluationAttemptsByUserId(String userId);
+    void addEvaluationAttempt(String userId,  String evaluationId, long score);
+    public List<EvaluationAttempts> getAllEvalAttempts() ;
+
+
 
 }

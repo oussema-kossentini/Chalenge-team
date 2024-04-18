@@ -28,6 +28,7 @@ public class Specialite implements Serializable {
 
     @DBRef
     Set<Class>classes;
-
+    @DBRef
+    Set<User>users;
 
 }

@@ -40,4 +40,6 @@ public class Evaluation implements Serializable {
     List<QA> qas;
     @DBRef
     List<Grade>grades;
+    @DBRef
+    User owner;
 }

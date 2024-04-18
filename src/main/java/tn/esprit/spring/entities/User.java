@@ -64,6 +64,8 @@ public class User implements UserDetails,Serializable {
     @DBRef
     Set<Publication> publications;
     @DBRef
+    private List<EvaluationAttempts> evaluationAttempts;
+    @DBRef
     private List<Evaluation> evaluations;
    /* public Role getRole() {
         return this.role;

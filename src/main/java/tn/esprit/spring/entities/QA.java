@@ -24,6 +24,7 @@ public class QA implements Serializable {
     String question;
     String difficulty;
     double score;
+    private String correctResponse;
 
 
     @Field("response")
