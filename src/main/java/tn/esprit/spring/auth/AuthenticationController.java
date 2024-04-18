@@ -114,7 +114,7 @@ public ResponseEntity<UserInfoResponse> getUserInfo(@PathVariable String idUser,
     } */
 
 
-  @PutMapping("/ate-image")
+  @PutMapping("/update-image")
   //hedi mtaa el role  lazem menha
   //tzid authentication fel methode
     @PreAuthorize("hasAuthority('ADMINISTRATOR') || (hasAuthority('USER') || hasAuthority('TEACHER') || hasAuthority('STUDENT') || hasAuthority('PROFESSOR'))")
