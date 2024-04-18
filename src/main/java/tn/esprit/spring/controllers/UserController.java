@@ -17,6 +17,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -186,9 +187,12 @@ public class UserController {
 */
 
 
-    @PreAuthorize("hasRole('ADMINSTRATOR')")
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') ")
     @GetMapping("/retrieve-all-users")
-    public List<User> getUsers() {
+    public List<User> getUsers(Authentication authentication) {
+        String userEmail = ((UserDetails) authentication.getPrincipal()).getUsername();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
         return userService.retrieveAllUsers();
     }
 
