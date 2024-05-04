@@ -13,5 +13,4 @@ public interface IPublicationService {
     public Publication getPublicationById(String idPublication);
     public List<Publication> searchPublicationsByTitle(String title);
     public void sharePublication(String publicationId) ;
-    public void reactToPublication(String publicationId, String userId, ReactionType reactionType);
 }

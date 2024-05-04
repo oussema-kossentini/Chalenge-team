@@ -38,8 +38,6 @@ String title;
     int dislikes;
     String fileName;
     private int shareCount; // Nombre de fois que la publication a été partagée
-@DBRef
-private Set<Reaction> reactions = new HashSet<>();
 
 
     @DBRef

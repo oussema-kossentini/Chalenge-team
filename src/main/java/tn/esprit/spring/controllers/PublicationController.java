@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.spring.entities.Publication;
 import tn.esprit.spring.entities.QA;
-import tn.esprit.spring.entities.ReactionType;
 import tn.esprit.spring.entities.User;
 import tn.esprit.spring.repositories.UserRepository;
 import tn.esprit.spring.services.IPublicationService;
@@ -186,23 +185,7 @@ UserRepository userRepository;
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to share publication");
         }
     }
-    @PostMapping("/{publicationId}/react")
-    public ResponseEntity<String> reactToPublication(@PathVariable String publicationId,
-                                                     @RequestParam String userId,
-                                                     @RequestParam ReactionType reactionType) {
-        try {
-            // Récupérer l'utilisateur à partir de son identifiant
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
 
-            // Appeler la méthode reactToPublication du service avec l'utilisateur et les autres paramètres
-            publicationService.reactToPublication(publicationId, userId, reactionType);
-
-            return ResponseEntity.ok("Reaction added successfully");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
-    }
 
 
 

@@ -30,7 +30,6 @@ public class UserController {
     public void removeUser(@PathVariable("user-id") String chId) {
         userService.removeUser(chId);
     }
-    // http://localhost:8080/tpfoyer/chambre/modify-chambre
     @PutMapping("/modify-user/{id}")
     public User modifyUser(@PathVariable String id,@RequestBody User user) {
         user.setIdUser(id);
