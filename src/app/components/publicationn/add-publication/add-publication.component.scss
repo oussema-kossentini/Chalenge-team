@@ -199,3 +199,57 @@ text-align: center;
   left: 50%;
   transform: translate(-50%, -50%);
 }
+.add-publication-card-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  max-width: 600px;
+  height: 90%; /* Définissez une hauteur maximale pour le conteneur */
+  overflow-y: auto; /* Ajoutez un défilement vertical si nécessaire */
+}
+
+/* Fixer la hauteur maximale de l'image */
+.add-publication-card-container img {
+  max-height: 200px; /* Réglez cette valeur en fonction de vos besoins */
+}
+/* Largeur et couleur de la barre de défilement */
+.add-publication-card-container::-webkit-scrollbar {
+  width: 10px; /* Largeur de la barre de défilement */
+}
+
+/* Aspect de la barre de défilement */
+.add-publication-card-container::-webkit-scrollbar-track {
+  background:  #8f8f07; /* Couleur de fond de la barre de défilement */
+}
+
+/* Couleur de la poignée de défilement */
+.add-publication-card-container::-webkit-scrollbar-thumb {
+  background: #057057; /* Couleur de la poignée de défilement */
+  border-radius: 10px; /* Bordure arrondie de la poignée */
+}
+
+/* Hover effect on scrollbar handle */
+.add-publication-card-container::-webkit-scrollbar-thumb:hover {
+  background: #976007; /* Couleur de la poignée de défilement au survol */
+}
+/* Style du bouton */
+.custom-file-upload {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #e9c10d;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.custom-file-upload:hover {
+  background-color: #0c536b;
+}
+
+/* Cacher l'input file */
+#fileInput {
+  display: none;
+}

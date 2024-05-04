@@ -6,6 +6,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { Publication} from './publication.model';
 import { v4 as uuidv4 } from 'uuid' // Importer uuid
 import { FormGroup } from '@angular/forms';
+import { ReactionType } from './ReactionType.model';
 
 @Injectable({
   providedIn: 'root'
@@ -45,19 +46,8 @@ export class PublicationService {
     getPublicationById(id: string): Observable<any> {
       return this.http.get<any>(`${this.apiUrl}/get?publication-id=${id}`);
     }
-  getImageUrl(imageToken: string): string {
-  // Construire l'URL de l'image en utilisant le token
-  return `http://localhost:8080/api/images/${imageToken}`;
-}
-uploadFile(file: File): Observable<HttpEvent<{}>> {
-  const formdata: FormData = new FormData();
-  formdata.append('file', file);
-  const req = new HttpRequest('POST', `${this.apiUrl}/add`, formdata, {
-    reportProgress: true,
-    responseType: 'text'
-  });
-  return this.http.request(req);
-}
+
+
 searchPublicationsByTitle(title: string): Observable<Publication[]> {
   const params = new HttpParams().set('title', title);
   return this.http.get<Publication[]>(`${this.apiUrl}/search`, { params });
@@ -73,6 +63,9 @@ publication$ = this.publicationSubject.asObservable();
 
 setPublication(publication: Publication | null): void {
   this.publicationSubject.next(publication);
+}
+reactToPublication(publicationId: string, reactionType: ReactionType, userId: string): Observable<any> {
+  return this.http.post<any>(`${this.apiUrl}/${publicationId}/react`, { userId, reactionType });
 }
 
 }

@@ -42,6 +42,9 @@ import { MenubarModule } from 'primeng/menubar';
 import { AvatarModule } from 'primeng/avatar';
 import { FouterComponent } from './components/publicationn/fouter/fouter.component';
 import { CommentComponent } from './components/comments/comment/comment.component';
+import { MainnComponent } from './components/mainn/mainn.component';
+import { MessagingComponent } from './components/messaging/messaging.component';
+import { SondageComponent } from './components/sondage/sondage.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -64,7 +67,10 @@ import { CommentComponent } from './components/comments/comment/comment.componen
       DeletePublicationComponent,
       ListPublicationComponent,
       FouterComponent,
-      CommentComponent  ],
+      CommentComponent,
+      MainnComponent,
+      MessagingComponent,
+      SondageComponent  ],
   imports: [
     BrowserModule,
     AppRoutingModule,

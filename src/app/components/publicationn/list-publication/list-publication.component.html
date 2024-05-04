@@ -128,8 +128,8 @@
               </div>
               <div class="action">
                   <i class="fa fa-smile"></i>
-                  <span>Feeling/Activity</span>
-              </div>
+                  <a mat-button color="primary" routerLink="/sondage">Feeling/Activity</a>
+                </div>
           </div>
       </div>
       
@@ -137,9 +137,16 @@
     <div class="card-columns" id="cardContainer">
         <div *ngFor="let publication of PublicationList" class="post">
             <div class="post-top">
+                
+                    <div class="dp">
+                        <img src="assets/img/socialmedia/dp.jpg" alt="">
+                    </div>
+                    <p class="name">Amin</p>
+              <br>
+              <br>
             <p class="card-text"><span class="text-muted"> {{ publication.formattedCreationDate }}</span></p>
             <i class="fas fa-ellipsis-h" (click)="toggleOptions(publication.idPublication)"></i>
-
+               
             <ul *ngIf="selectedPublicationId === publication.idPublication && showOptions" class="options-list">
                 <div class="icon-container">
   <li (click)="deletePublication(publication.idPublication)">
@@ -174,7 +181,7 @@
                 <input type="text" [(ngModel)]="publication.content" />
               
 
-                <button (click)="saveChanges(publication)">
+                <button (click)="saveChange(publication)">
                     <i class="fas fa-archive"></i>saveChanges
                 </button>
               </ng-template>
@@ -203,11 +210,14 @@
           </div>
 
         
-          <i class="fas" [ngClass]="{'fa-chevron-up': publication.showComments, 'fa-chevron-down': !publication.showComments}" (click)="toggleComments(publication)"></i>
-          <span (click)="toggleComments(publication)">
-            {{ publication.showComments ? 'Masquer les commentaires' : 'Afficher les commentaires' }}
-          </span>
-          
+          <i class="fas" 
+          [ngClass]="{'fa-eye': !publication.showComments, 'fa-eye-slash': publication.showComments}" 
+          (click)="toggleComments(publication)">
+       </i>
+       <span (click)="toggleComments(publication)" style="cursor: pointer;">
+          <i class="fas fa-comment"></i>
+       </span>
+       
            <!-- Afficher les commentaires si showComments est vrai -->
   <div *ngIf="publication.showComments && publication.comments && publication.comments.length > 0">
   

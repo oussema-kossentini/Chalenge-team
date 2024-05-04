@@ -1,0 +1,47 @@
+<app-header></app-header>
+
+<div class="container">
+    <h2>Créer un sondage</h2>
+    <mat-card>
+      <mat-card-content>
+        <form (ngSubmit)="creerSondage()">
+          <mat-form-field appearance="fill">
+            <mat-label>What's your question?</mat-label>
+            <input matInput type="text" id="titre" name="titre" [(ngModel)]="titre" required>
+          </mat-form-field>
+          <div *ngFor="let option of options; let i = index" class="option-input">
+            <mat-form-field appearance="fill">
+              <mat-label>Option {{ i + 1 }}</mat-label>
+              <input matInput type="text" id="option{{i}}" name="options" [(ngModel)]="options[i]" required>
+            </mat-form-field>
+            <button type="button" mat-button color="warn" (click)="supprimerOption(i)">Supprimer</button>
+          </div>
+          <button type="button" mat-button (click)="ajouterOption()">Add an option</button>
+          <button type="submit" mat-raised-button color="primary">Créer le sondage</button>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  
+    <h2>List of surveys</h2>
+    <mat-card *ngFor="let sondage of sondages">
+      <mat-card-header>
+        <div mat-card-avatar class="example-header-image"></div>
+        <mat-card-title>{{ sondage.titre }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div *ngFor="let option of sondage.options">
+          <button mat-button color="primary" (click)="voter(sondage, option)">
+            Vote pour {{ option.label }} - Votes: {{ option.votes }}
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+    <!-- Points représentant les incréments -->
+
+    <!-- Alertes de succès SweetAlert2 -->
+    <ng-template #successAlert>
+      <div class="alert alert-success" role="alert">
+        Successfully planned event!      </div>
+    </ng-template>
+  </div>
+<app-footer></app-footer>

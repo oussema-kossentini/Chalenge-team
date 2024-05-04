@@ -643,8 +643,9 @@ button:hover {
   font-size: 15px; /* Taille de l'icône */
   margin-right: 5px; /* Marge à droite pour l'espacement */
   transition: transform 0.3s ease; /* Animation de transition */
+ 
 }
-
+.fas{ cursor: pointer;}
 /* Effet de changement de couleur au survol */
 .fas.fa-comment-alt:hover {
   color: #00838f; /* Nouvelle couleur au survol */
@@ -675,4 +676,82 @@ button:hover {
 /* Effet de changement de couleur au survol */
 .fas.fa-users:hover {
   color: #303f9f; /* Nouvelle couleur au survol */
+}
+.popup-content {
+  text-align: center;
+}
+
+.popup-content h2 {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.popup-content p {
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.popup-content img {
+  max-width: 100%;
+  margin-bottom: 20px;
+}
+
+.popup-content button {
+  background-color: #1da1f2;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.popup-content button:hover {
+  background-color: #0c7ad1;
+}
+/* Style du bouton de partage */
+.share-button {
+  background-color: #1DA1F2; /* Couleur de fond du bouton */
+  color: white; /* Couleur du texte */
+  border: none; /* Supprimer la bordure */
+  border-radius: 4px; /* Arrondir les coins */
+  padding: 10px 20px; /* Espacement interne */
+  font-size: 16px; /* Taille de la police */
+  cursor: pointer; /* Curseur de la souris */
+  transition: background-color 0.3s; /* Transition pour un effet de survol fluide */
+}
+
+.share-button:hover {
+  background-color: #0F8FE4; /* Couleur de fond au survol */
+}
+
+/* Style de l'icône Twitter */
+.share-button i.fa-twitter {
+  margin-right: 5px; /* Marge à droite pour séparer l'icône du texte */
+}
+/* Style pour l'icône "fa-eye" et "fa-eye-slash" */
+.fas.fa-eye,
+.fas.fa-eye-slash {
+  font-size: 18px; /* Taille de l'icône */
+  color: #ccbf2e; /* Couleur initiale vert d'eau */
+  cursor: pointer; /* Curseur pointeur */
+  transition: color 0.3s ease; /* Animation de transition de couleur */
+}
+
+/* Style au survol de l'icône */
+.fas.fa-eye:hover,
+.fas.fa-eye-slash:hover {
+  color: #08bd9c; /* Couleur bleue au survol */
+}
+
+/* Style pour l'icône de commentaire */
+.fas.fa-comment {
+  font-size: 18px; /* Taille de l'icône */
+  color: #ccbf2e; /* Couleur initiale vert d'eau */
+  cursor: pointer; /* Curseur pointeur */
+}
+
+/* Style au survol de l'icône de commentaire */
+.fas.fa-comment:hover {
+  color: #08bd9c; /* Couleur bleue au survol */
 }

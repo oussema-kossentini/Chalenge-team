@@ -1,0 +1,26 @@
+<div class="container">
+    <h2>Enter Your Name to Start Chatting</h2>
+    <input type="text" [(ngModel)]="username" placeholder="Enter your name">
+    <button (click)="login()">Login</button>
+    <button (click)="logout()">Logout</button>
+  
+    <p *ngIf="username">Logged in as: {{ username }}</p>
+  </div>
+  <div *ngIf="!loggedIn && loggedOut">
+  <!-- Register Form -->
+  <form [formGroup]="registerForm" (ngSubmit)="addUser()">
+    <div class="form-group">
+      <label for="username">Username:</label>
+      <input type="text" class="form-control" id="username" formControlName="username">
+    </div>
+    <button type="submit" class="btn btn-primary">Register</button>
+  </form>
+  <div *ngIf="alert !== ''" class="alert alert-{{alert}}" role="alert">{{registermsg}}</div>
+</div>
+<div class="row mt-5">
+  <div *ngFor="let user of alluser" class="user col-2" (click)="startChatWithUser(user.userName)">
+    <div *ngIf="user.userName !== username">
+      {{ user.userName }}
+    </div>
+  </div>
+</div>

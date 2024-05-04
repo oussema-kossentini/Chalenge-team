@@ -9,6 +9,9 @@ import { RetrievePublicationComponent } from './components/publicationn/retrieve
 import { DeletePublicationComponent } from './components/publicationn/delete-publication/delete-publication.component';
 import { ListPublicationComponent } from './components/publicationn/list-publication/list-publication.component';
 import { CommentComponent } from './components/comments/comment/comment.component';
+import { MainnComponent } from './components/mainn/mainn.component';
+import { MessagingComponent } from './components/messaging/messaging.component';
+import { SondageComponent } from './components/sondage/sondage.component';
 
 
 const routes: Routes = [
@@ -23,7 +26,10 @@ const routes: Routes = [
   { path: 'retrive-publication', component: RetrievePublicationComponent },
   { path: 'delete-publication', component: DeletePublicationComponent },
   { path: 'list', component: ListPublicationComponent },
-  { path: 'comment', component: CommentComponent }
+  { path: 'comment', component: CommentComponent },
+  { path: 'mainn', component: MainnComponent },
+  { path: 'messaging', component: MessagingComponent },
+  { path: 'sondage', component: SondageComponent }
 
 
 ];

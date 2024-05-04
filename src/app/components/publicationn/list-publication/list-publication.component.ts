@@ -6,8 +6,11 @@ import { Comment } from '../../comments/Comment';
 import { CommentService } from '../../comments/CommentService';
 import { AddPublicationComponent } from '../add-publication/add-publication.component';
 import { Publication } from '../publication.model';
-import { FormControl } from '@angular/forms';
+import { FormBuilder, FormControl } from '@angular/forms';
 import Swal from 'sweetalert2';
+import { Overlay } from '@angular/cdk/overlay';
+import { ReactionType } from '../ReactionType.model';
+
 @Component({
   selector: 'app-list-publication',
   templateUrl: './list-publication.component.html',
@@ -29,8 +32,9 @@ Publications: any[]=[];
   publication: any;
   likes: number = 0; // Variable pour stocker le nombre de likes
   selectedPublication: any;
-
-  constructor(public publicationService: PublicationService,public dialog: MatDialog ,    private router: Router, private commentService: CommentService ) {
+  searchCtrl!: FormControl;
+  searchTypeCtrl!: FormControl;
+  constructor(public publicationService: PublicationService,public dialog: MatDialog ,    private router: Router, private commentService: CommentService,  private overlay: Overlay,  private formBuilder: FormBuilder ) {
     
   }
   onFileSelected(event: any) {
@@ -44,10 +48,10 @@ Publications: any[]=[];
         reader.readAsDataURL(file);
     }
 }
-
+publicationId: string = ''; // ID de la publication
   ngOnInit(): void {
-    this.loadPublications(); // Appel de la méthode pour charger les publications lors de l'initialisation du composant
-
+   
+       this.loadPublications(); // Appel de la méthode pour charger les publications lors de l'initialisation du composant
     this.menuItems = [
       {
         label: 'Utilisateur',
@@ -62,7 +66,11 @@ Publications: any[]=[];
   }
   openAddPublicationDialog(): void {
     const dialogRef = this.dialog.open(AddPublicationComponent, {
-     width: '50%', // Ajustez la largeur selon vos besoins
+      width: '400px', // Largeur fixe
+      maxHeight: '90vh', // Hauteur maximale de 90% de la hauteur de la vue
+      autoFocus: false, // Désactive la mise au point automatique sur le premier champ de saisie
+      scrollStrategy: this.overlay.scrollStrategies.block(), // Ajoute un défilement vertical si nécessaire
+      // Autres options de configuration si nécessaire
 
     });
   
@@ -210,15 +218,30 @@ Publications: any[]=[];
 
 
   saveChange(publication: any): void {
-    publication.editing = false; // Deactivate edit mode for the user
+    publication.editing = false; // Désactiver le mode d'édition pour l'utilisateur
+  
     this.publicationService.modifyPublication(publication).subscribe({
       next: (response) => {
-        console.log('User modified successfully:', response);
-        // Handle successful response, e.g., display confirmation message
+        // En cas de succès, afficher une alerte de succès
+        Swal.fire({
+          icon: 'success',
+          title: 'Modification réussie',
+          text: 'La publication a été modifiée avec succès.',
+          showConfirmButton: false,
+          timer: 1500 // Durée pendant laquelle l'alerte sera affichée en millisecondes (ici 1.5 seconde)
+        });
+        
+        console.log('Publication modifiée avec succès:', response);
       },
       error: (error) => {
-        console.error('Error modifying user:', error);
-        // Handle error, e.g., display error message to user
+        // En cas d'erreur, afficher une alerte d'erreur
+        Swal.fire({
+          icon: 'success',
+          title: 'Modification réussie',
+          text: 'La publication a été modifiée avec succès.'
+        });
+        
+        console.error('Erreur lors de la modification de la publication:', error);
       }
     });
   }
@@ -363,7 +386,7 @@ Publications: any[]=[];
   }
   async sharePublication(publication: any): Promise<void> {
      this.publicationService.sharePublication(publication.idPublication).toPromise();
-
+ publication.shareCount += 1;
      const shareUrl = `${this.publicationService.host}/api/publications/get/${publication.idPublication}`;
     const twitterShareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}`;
 
@@ -378,6 +401,7 @@ Publications: any[]=[];
     const popup = window.open('', '_blank', `width=${popupWidth}, height=${popupHeight}, top=${top}, left=${left}`);
     if (popup) {
         // Construire le contenu HTML pour la fenêtre pop-up
+        popup.document.write(`<link rel="stylesheet" type="text/css"`);
         const popupContent = `
             <div>
                 <h2>${publication.title}</h2>
@@ -390,8 +414,9 @@ Publications: any[]=[];
         // Ajouter des boutons de partage avec les liens appropriés
         popup.document.write(`
             <div>
-                <button onclick="window.open('${twitterShareUrl}', '_blank')">Partager sur Twitter</button>
-            </div>
+            <button class="share-button" onclick="window.open('${twitterShareUrl}', '_blank')">
+            <i class="fa fa-twitter"></i> Partager sur Twitter
+          </button>            </div>
         `);
     } else {
         console.error('Impossible d\'ouvrir la fenêtre pop-up.');
@@ -416,21 +441,13 @@ Publications: any[]=[];
   
 searchTitle: string = '';
 searchPublicationsByTitle(): void {
-  if (this.searchTitle.trim() === '') {
-    this.isLoading = false;
-    // Charge toutes les publications si la recherche est vide
-    this.loadFilteredPublications();
-  } else {
-    // Effectue une recherche en fonction du titre saisi
-    this.publicationService.searchPublicationsByTitle(this.searchTitle).subscribe(
-      (data: any[]) => {
-        // Filtrer les publications ayant un titre contenant des caractères spécifiques
-        const filteredPublications = data.filter(publication => publication.title.toLowerCase().includes(this.searchTitle.toLowerCase()));
+  this.isLoading = true; // Activer le chargement
 
-        // Trier les publications par date de création (la plus récente d'abord)
-        filteredPublications.sort((a, b) => new Date(b.creationDate).getTime() - new Date(a.creationDate).getTime());
-
-        this.PublicationList = filteredPublications.map(publication => {
+  this.publicationService.searchPublicationsByTitle(this.searchTitle).subscribe(
+    (data: any[]) => {
+      if (this.searchTitle.trim() === '') {
+        // Si la recherche est vide, affichez toutes les publications
+        this.PublicationList = data.map(publication => {
           // Traitement des données et chargement des commentaires
           const creationDate = new Date(publication.creationDate);
           return {
@@ -440,13 +457,37 @@ searchPublicationsByTitle(): void {
             comments: []
           };
         });
-      },
-      error => {
-        console.error('Error loading filtered publications by title:', error);
+      } else {
+        // Filtrer et traiter les publications par titre
+        const filteredPublications = data.filter(publication => {
+          const title = publication.title.toLowerCase(); // Convertir le titre en minuscules pour une correspondance insensible à la casse
+          return title.includes(this.searchTitle.toLowerCase()); // Vérifier si le titre contient la recherche
+        }).map(publication => {
+          // Traitement des données et chargement des commentaires
+          const creationDate = new Date(publication.creationDate);
+          return {
+            ...publication,
+            formattedCreationDate: creationDate.toLocaleString(),
+            showComments: false,
+            comments: []
+          };
+        });
+
+        // Trier les publications par date de création (la plus récente d'abord)
+        filteredPublications.sort((a, b) => new Date(b.creationDate).getTime() - new Date(a.creationDate).getTime());
+
+        this.PublicationList = filteredPublications; // Mettez à jour la liste des publications filtrées
       }
-    );
-  }
+      this.isLoading = false; // Désactiver le chargement
+    },
+    error => {
+      console.error('Error loading filtered publications by title:', error);
+      this.isLoading = false; // Désactiver le chargement en cas d'erreur
+    }
+  );
 }
+
+
 
 
 loadAllPublications(): void {
@@ -524,10 +565,6 @@ loadFilteredPublications(): void {
     }
   );
 }
-
-
-
-
 
 
 

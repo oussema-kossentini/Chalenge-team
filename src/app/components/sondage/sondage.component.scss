@@ -1,0 +1,95 @@
+/* Styles pour le formulaire de création de sondage */
+.form-container {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .form-container h2 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+  }
+  
+  .form-container form {
+    background-color: #fff;
+    border: 1px solid #dddfe2;
+    padding: 20px;
+    border-radius: 8px;
+  }
+  
+  .form-container label {
+    font-weight: bold;
+  }
+  
+  .form-container input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #dddfe2;
+    border-radius: 4px;
+  }
+  
+  .form-container button {
+    background-color: #1877f2;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .form-container button:hover {
+    background-color: #166fe5;
+  }
+  
+  .option-input {
+    display: flex;
+    align-items: center;
+  }
+  
+  .option-input input[type="text"] {
+    flex: 1;
+    margin-right: 10px;
+  }
+  
+  .option-input button {
+    background-color: #f02849;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .option-input button:hover {
+    background-color: #d9243f;
+  }
+  .vote-button {
+    background-color: #1877f2;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .vote-button:hover {
+    background-color: #166fe5;
+  }
+  .popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  
+  .popup.show {
+    opacity: 1;
+  }
+      

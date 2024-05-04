@@ -1,3 +1,4 @@
+import { ReactionType } from "./ReactionType.model";
 
 
 export interface Publication {
@@ -13,6 +14,8 @@ export interface Publication {
   shareCount ?: number; // Nombre de partages de la publication
 
   comments?: Comment[]; // Liste des commentaires associés à la publication
+ // Ajouter la nouvelle propriété
+ reactionType?: ReactionType; // Nouvelle propriété pour le type de réaction
 
 }
 
