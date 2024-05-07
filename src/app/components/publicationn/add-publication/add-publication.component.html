@@ -1,0 +1,46 @@
+<div class="add-publication-card-container">
+
+  <div class="center-container add-publication-card-container">
+      <mat-card class="publication-card" aos="fade-up" aos-duration="8000">
+    <mat-card-content>
+      <!-- Form container -->
+      <form [formGroup]="publicationForm" (ngSubmit)="publish()" enctype="multipart/form-data" class="publication-form">
+        <!-- Title input -->
+        <mat-form-field class="title-field" appearance="fill">
+          <mat-label>Title</mat-label>
+          <input matInput formControlName="title" placeholder="Enter your title" required>
+        </mat-form-field>
+        <!-- Content input -->
+        <mat-form-field class="content-field" appearance="fill">
+          <mat-label>Content</mat-label>
+          <textarea matInput formControlName="content" placeholder="Exprimez-vous..." (focus)="toggleEmojis()"  (blur)="toggleEmojis()" required>{{ content }}</textarea>
+        </mat-form-field>
+      
+        <!-- Emoji picker -->
+        <button mat-icon-button (click)="toggleEmojis()" type="button" class="emoji-button">
+          <mat-icon>insert_emoticon</mat-icon>
+        </button>
+        <div *ngIf="showEmojis" class="emoji-picker">
+          <span *ngFor="let emoji of emojis" (click)="addEmoji(emoji)">{{ emoji }}</span>
+        </div>
+  <div class="form-group">
+
+<!-- Bouton stylisé avec une icône -->
+<label for="fileInput" class="custom-file-upload">
+  <i class="fas fa-file-upload"></i> 
+</label>
+<!-- Input file caché -->
+<input id="fileInput" type="file" accept="image/*" (change)="onSelectedFile($event)">
+
+
+    <img [src]="imgURL" height="200" *ngIf="imgURL">
+
+
+  </div>
+  <div class="actions">
+    <button mat-raised-button color="primary" onclick="window.location='/list';" class="button-publish" type="submit">Publish</button>
+  </div>
+</form>
+</mat-card-content>
+</mat-card>
+</div>

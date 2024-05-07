@@ -1,0 +1,68 @@
+<app-header></app-header>
+<div class="container mt-5">
+    <h2>Ajouter une Évaluation</h2>
+    <form [formGroup]="evaluationForm" (ngSubmit)="onSubmit()" novalidate>
+
+        <mat-form-field appearance="fill" class="w-100">
+            <mat-label>ID</mat-label>
+            <input matInput formControlName="idEvaluation" required>
+            <mat-error *ngIf="evaluationForm.get('idEvaluation')?.hasError('required')">
+                ID est obligatoire.
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="w-100">
+            <mat-label>Titre</mat-label>
+            <input matInput formControlName="title" required>
+            <mat-error *ngIf="evaluationForm.get('title')?.hasError('required')">
+                Titre est obligatoire.
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="w-100">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description" rows="3" required></textarea>
+            <mat-error *ngIf="evaluationForm.get('description')?.hasError('required')">
+                Description est obligatoire.
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="w-100">
+            <mat-label>Type d'Évolution</mat-label>
+            <mat-select formControlName="evolutionType" required>
+                <mat-option value="QUIZ">QUIZ</mat-option>
+                <mat-option value="SOLVED_PROBLEM">Problème résolu</mat-option>
+            </mat-select>
+            <mat-error *ngIf="evaluationForm.get('evolutionType')?.hasError('required')">
+                Type d'Évolution est obligatoire.
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="w-100">
+            <mat-label>Date de début</mat-label>
+            <input matInput [matDatepicker]="debutDatePicker" formControlName="debutDate" required>
+            <mat-datepicker-toggle matSuffix [for]="debutDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #debutDatePicker></mat-datepicker>
+            <mat-error *ngIf="evaluationForm.get('debutDate')?.hasError('required')">
+                Date de début est obligatoire.
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="w-100">
+            <mat-label>Date de fin</mat-label>
+            <input matInput [matDatepicker]="endDatePicker" formControlName="endDate">
+            <mat-datepicker-toggle matSuffix [for]="endDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #endDatePicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="w-100">
+            <mat-label>Durée</mat-label>
+            <input matInput formControlName="duration">
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit">Ajouter</button>
+        <br>
+        <br>
+        <br>
+    </form>
+

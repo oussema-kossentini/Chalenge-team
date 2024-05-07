@@ -1,0 +1,757 @@
+*{
+  margin:0;
+  padding:0;
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+
+nav{
+  height:70px;
+  width:100%;
+  padding: 0 2rem;
+  display:flex;
+  justify-content: space-between;
+  background-color: #fff;
+  box-shadow: 0px 1px 3px #ccc;
+  position:sticky;
+  top:0;
+  z-index:99;
+}
+
+nav .nav-left, nav .nav-right{
+  display:flex;
+  align-items: center;
+  color:#eee
+}
+
+nav .nav-left > img{
+  width:40px;
+}
+
+nav .nav-left > input{
+  height:40px;
+  padding:5px 10px;
+  border:none;
+  border-radius: 25px;
+  outline:none;
+  background-color: #eee;
+  margin-left: 10px;
+}
+
+nav .nav-middle{
+  display:flex;
+  align-items:flex-end;
+  padding-bottom: 5px;
+}
+
+nav .nav-middle a{
+  text-decoration: none;
+  color:#333;
+  padding:10px;
+  margin:0px 10px;
+}
+
+nav .nav-middle a.active{
+  color:royalblue;
+  position:relative;
+}
+
+nav .nav-middle a.active::after{
+  content:'';
+  width:100%;
+  height:3px;
+  position:absolute;
+  bottom:0;
+  left:0;
+  background:royalblue;
+}
+
+nav .nav-middle a > i{
+  font-size: 25px;
+}
+
+nav .nav-right .profile, .container .left-panel .profile{
+  background: src('assets/img/socialmedia/gdp.jpg');                                    
+
+  height:30px;
+  width:30px;
+  background-size: cover;
+  border-radius: 50%;
+  cursor: pointer;
+  background-color: #eee;
+}
+
+nav .nav-right a{
+  text-decoration: none;
+  color:#333;
+  height:40px;
+  width:40px;
+  border-radius: 50%;
+  background:#eee;
+  display:grid;
+  place-items: center;
+  margin-left:1rem;
+}
+
+nav .nav-right a > i{
+  font-size:18px;
+  
+}
+
+
+.container{
+  background:#eee;
+  display:flex;
+}
+
+.container .left-panel, .container .right-panel{
+  position: sticky;
+  top:70px;
+  width:250px;
+  height:calc(100vh - 70px);
+}
+
+.container .left-panel ul{
+  padding:10px 0px;
+}
+
+.container .left-panel ul li{
+  list-style: none;
+  display: flex;
+  padding:.7rem 1rem;
+  align-items: center;
+  transition: .3s;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.container .left-panel ul li:hover{
+  background:#ddd;
+}
+
+.container .left-panel ul li > p{
+  margin-left: 10px;
+}
+
+.container .left-panel ul li > i{
+  font-size:20px;
+  color:slateblue;
+}
+
+.container .left-panel ul li > i.fa-calendar-week{
+  color:tomato;
+}
+
+.container .left-panel ul li i.fa-briefcase{
+  color:green;
+}
+
+.container .left-panel ul li i.fa-star{
+  color:yellowgreen;
+}
+
+.container .left-panel ul li i.fa-hands-helping{
+  color:indianred;
+}
+
+.container .left-panel .footer-links{
+  padding:5px 1rem;
+}
+
+.container .left-panel .footer-links a{
+  text-decoration: none;
+  color:#333;
+  font-size:12px;
+}
+
+.middle-panel{
+  flex:1;
+  display:flex;
+  flex-direction: column;
+  align-items:center;
+}
+
+.middle-panel .story-section{
+  display:flex;
+  padding:1rem;
+}
+
+.middle-panel .story-section .story{
+  width:120px;
+  height:200px;
+  border-radius: 10px;
+  position: relative;
+  overflow:hidden;
+  cursor: pointer;
+  margin:0px 5px;
+  box-shadow: 0 0 5px 5px #ddd;
+  background:#fff;
+}
+
+.middle-panel .story-section .story > img{
+  height:100%;
+  transition:.3s ease-in;
+}
+
+.middle-panel .story-section .story:hover > img{
+  transform:scale(1.05);
+}
+
+.middle-panel .story-section .story .dp-container{
+  width:40px;
+  height:40px;
+  border-radius: 50%;
+  overflow:hidden;
+  position:absolute;
+  top:10px;
+  left:10px;
+  border:royalblue 4px solid; 
+}
+
+.middle-panel .story-section .story .dp-container > img{
+  width:100%;
+  height:100%;
+}
+
+.middle-panel .story-section .story .name{
+  position:absolute;
+  bottom:0px;
+  left:0px;
+  padding:5px;
+  color:#fff;
+  font-weight:bold;
+}
+
+.middle-panel .story-section .story.create .dp-image{
+  height:80%;
+  overflow:hidden;
+}
+
+.middle-panel .story-section .story.create .dp-image img{
+  width:100%;
+}
+
+.middle-panel .story-section .story.create .dp-container{
+  top:70%;
+  left:50%;
+  transform: translateX(-50%);
+  display:grid;
+  place-items: center;
+  background:royalblue;
+  border:4px solid #fff;
+}
+
+.middle-panel .story-section .story.create .dp-container i{
+  color: #fff;
+}
+
+.middle-panel .story-section .story.create .name{
+  color: #000;
+  font-size:15px;
+  left:10px;
+}
+
+.post{
+  width:550px;
+  background:#fff;
+  border-radius:10px;
+  padding:10px;
+  margin:10px;
+}
+
+.post .post-top{
+  display:flex;
+  align-items: center;
+  padding:10px;
+}
+
+.post .post-top .dp{
+  width:40px;
+  height:40px;
+  border-radius: 50%;
+  overflow:hidden;
+}
+
+.post .post-top .dp > img{
+  width:100%;
+  cursor:pointer;
+}
+
+.post .post-top .post-info{
+  margin-left:10px;    
+  font-weight: bold;
+}
+
+.post .post-top .post-info .name{
+  cursor:pointer;
+  font-size:16px;
+}
+
+.post .post-top .post-info .time{
+  font-size:12px;
+  cursor:pointer;
+}
+
+.post .post-top i{
+  margin-left:auto;
+  cursor: pointer;
+}
+
+.post .post-top > input{
+  height:40px;
+  padding:5px 10px;
+  border-radius:25px;
+  outline:none;
+  border:none;
+  flex:1;
+  background:#eee;
+  margin-left:10px;
+}
+
+.post .post-content{
+  font-size:16px;
+  font-weight:normal;
+  padding:10px;
+}
+
+.post .post-content > img{
+  width:100%;
+  margin:5px 0px;
+}
+
+.post .post-bottom{
+  box-shadow: 1px solid #ddd;
+  display:flex;
+  justify-content: space-between;
+  padding:5px 5px 0px 5px;
+}
+
+.post .post-bottom .action{
+  padding:10px;
+  border-radius:10px;
+  transition: .3s ease-in;
+  cursor: pointer;
+}
+
+.post .post-bottom .action:hover{
+  background:#eee;
+}
+
+.post.create .post-bottom > .action{
+  color:#d74;
+}
+
+.container .right-panel{
+  padding:1rem;
+}
+
+.right-panel .pages-section,
+.right-panel .friends-section{
+  margin:1rem 0px;
+}
+
+.right-panel .pages-section h4,
+.right-panel .friends-section h4{
+  margin-bottom:10px;
+}
+
+.right-panel .pages-section .page,
+.right-panel .friends-section .friend{
+  display: flex;
+  align-items:center;
+  text-decoration: none;
+  transition: .3s ease-in-out;
+  border-radius: 5px;
+  padding:7px 10px;
+  color:#333;
+}
+
+.right-panel .pages-section .page:hover,
+.right-panel .friends-section .friend:hover{
+  background:#ddd;
+}
+
+.right-panel .pages-section .page > .dp,
+.right-panel .friends-section .friend > .dp{
+  height:40px;
+  width:40px;
+  border-radius: 50%;
+  overflow:hidden;
+  cursor: pointer;
+}
+
+.right-panel .pages-section .page > .dp > img, 
+.right-panel .friends-section .friend > .dp > img{
+  width:100%;
+}
+
+.right-panel .pages-section .name, .right-panel .friends-section .name{
+  font-size:18px;
+  cursor:pointer;
+  margin-left:8px;
+}
+.btn btn-primary btn-block {
+  background-color: #d74;
+  color: white; /* Pour changer la couleur du texte en blanc */
+  /* Autres styles de bouton personnalisés */
+}
+.comment-input {
+  margin-top: 10px;
+}
+
+.input-container {
+  display: flex;
+  align-items: center;
+}
+
+.comment-input-field {
+  flex: 1;
+  width: 150%;
+  height: 40px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  padding: 0 15px;
+  font-size: 16px;
+}
+
+.comment-submit {
+  height: 40px;
+  padding: 0 15px;
+  background-color: #31bdd2;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.comment-submit:hover {
+  background-color: #c9a11d;
+}
+
+.comment-submit i {
+  font-size: 18px;
+}
+.comment-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.comment-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.comment-item {
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 10px;
+  max-width: 70%; /* Ajout d'une largeur maximale */
+}
+
+.comment-content p {
+  margin: 0;
+}
+
+.comment-date {
+  font-size: 12px;
+  color: #999;
+}
+.card-title {
+  font-size: 24px; /* Taille de la police plus grande pour le titre */
+  font-weight: bold; /* Texte en gras pour le titre */
+  text-align: center; /* Centrer le texte */
+  animation: animateText 2s infinite alternate; /* Animation du texte */
+  transform-origin: center; /* Point de transformation au centre */
+  color: blueviolet;
+}
+@keyframes animateText {
+  0% {
+      transform: scale(1); /* Taille normale */
+  }
+  50% {
+      transform: scale(2); /* Taille agrandie à 110% */
+  }
+  100% {
+      transform: scale(1); /* Retour à la taille normale */
+  }
+}
+
+.card-text {
+  /* Ajoutez ici les styles pour le contenu */
+  animation: animateText ;
+  font-size: 18px; /* Taille de la police plus grande pour le titre */
+}
+
+.search-input {
+  position: relative;
+  display: inline-block;
+}
+
+.search-input input[type="text"] {
+  padding: 10px;
+  width: 200px;
+  border: 1px solid #7fffd4; /* Vert d'eau */
+  border-radius: 20px; /* Coins arrondis */
+  transition: border-color 0.3s ease; /* Animation de transition */
+}
+
+.search-input button {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  border-color: #7fffd4; /* Bordure orange en focus */
+
+}
+
+.search-input input[type="text"]:focus {
+  width: 300px;
+  border-color: #ffa500; /* Bordure orange en focus */
+
+}
+
+.search-input input[type="text"]:focus + button {
+  border-color: #7fffd4; /* Bordure orange en focus */
+  color: #ffa500; /* Couleur du texte du bouton en hover */
+
+}
+
+.search-input button:hover {
+color: #7fffd4; /* Bordure orange en focus */
+ 
+}
+
+.fa-search {
+  transition: all 0.3s ease;
+
+}
+
+
+.search-input input[type="text"]:focus + button .fa-search {
+  transform: rotate(90deg);
+  button:not(:disabled) {
+    color: #c9a11d;
+  }
+}
+.options-list {
+  list-style-type: none;
+  padding: 5px 0;
+  margin: 0;
+  position:sticky;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  animation: fadeInDown 0.3s ease forwards;
+  width: 80px; /* Largeur de la liste */
+}
+
+.options-list li {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.options-list li:hover {
+  background-color: #f0f0f0;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.icon-container {
+  display: inline-block; /* Pour afficher les icônes sur la même ligne */
+}
+
+.icon {
+  font-size: 24px; /* Taille personnalisée */
+  margin-right: 10px; /* Espacement entre les icônes */
+  transition: transform 0.2s ease; /* Ajouter une transition pour l'échelle */
+}
+
+.clicked {
+  transform: scale(0.8); /* Réduire l'échelle lorsqu'un clic */
+}
+/* Style pour les champs input */
+input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 20px; /* Coins plus arrondis */
+}
+
+/* Style pour le bouton Enregistrer */
+button {
+  padding: 2px 5px;
+  background-color: #abab0c;
+  color: white;
+  border: 1px solid transparent; /* Lignes plus fines */
+  border-radius: 50px; /* Coins plus arrondis */
+  cursor: pointer;
+
+}
+
+/* Style pour le bouton Enregistrer au survol */
+button:hover {
+  background-color: #c9a11d;
+}
+/* CSS pour l'icône de cœur */
+.fa-heart {
+  color: #ff0000; /* Couleur rouge par défaut */
+  font-size: 16px; /* Taille de l'icône */
+  cursor: pointer; /* Curseur pointeur pour indiquer l'interactivité */
+  transition: color 0.3s ease; /* Animation de transition de couleur */
+  margin-right: 5px;
+}
+
+.fa-heart:hover {
+  color: #ff6666; /* Couleur rouge clair au survol */
+}
+
+/* Animation pour l'icône de cœur */
+@keyframes heartBeat {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Appliquer l'animation lors du clic sur l'icône de cœur */
+.fa-heart.clicked {
+  animation: heartBeat 0.5s ease;
+}
+/* Style pour l'icône de commentaire */
+.fas.fa-comment-alt {
+  color: #00bcd4; /* Couleur du commentaire */
+  font-size: 15px; /* Taille de l'icône */
+  margin-right: 5px; /* Marge à droite pour l'espacement */
+  transition: transform 0.3s ease; /* Animation de transition */
+ 
+}
+.fas{ cursor: pointer;}
+/* Effet de changement de couleur au survol */
+.fas.fa-comment-alt:hover {
+  color: #00838f; /* Nouvelle couleur au survol */
+}
+
+/* Animation de saut au clic */
+.fas.fa-comment-alt.clicked {
+  animation: jump 0.5s ease;
+}
+
+/* Animation de saut */
+@keyframes jump {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+/* Style pour l'icône de partage */
+.fas.fa-users {
+  color: #3f51b5; /* Couleur de l'icône */
+  font-size: 24px; /* Taille de l'icône */
+  margin-right: 5px; /* Marge à droite pour l'espacement */
+  transition: color 0.3s ease; /* Animation de transition */
+}
+
+/* Effet de changement de couleur au survol */
+.fas.fa-users:hover {
+  color: #303f9f; /* Nouvelle couleur au survol */
+}
+.popup-content {
+  text-align: center;
+}
+
+.popup-content h2 {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.popup-content p {
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.popup-content img {
+  max-width: 100%;
+  margin-bottom: 20px;
+}
+
+.popup-content button {
+  background-color: #1da1f2;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.popup-content button:hover {
+  background-color: #0c7ad1;
+}
+/* Style du bouton de partage */
+.share-button {
+  background-color: #1DA1F2; /* Couleur de fond du bouton */
+  color: white; /* Couleur du texte */
+  border: none; /* Supprimer la bordure */
+  border-radius: 4px; /* Arrondir les coins */
+  padding: 10px 20px; /* Espacement interne */
+  font-size: 16px; /* Taille de la police */
+  cursor: pointer; /* Curseur de la souris */
+  transition: background-color 0.3s; /* Transition pour un effet de survol fluide */
+}
+
+.share-button:hover {
+  background-color: #0F8FE4; /* Couleur de fond au survol */
+}
+
+/* Style de l'icône Twitter */
+.share-button i.fa-twitter {
+  margin-right: 5px; /* Marge à droite pour séparer l'icône du texte */
+}
+/* Style pour l'icône "fa-eye" et "fa-eye-slash" */
+.fas.fa-eye,
+.fas.fa-eye-slash {
+  font-size: 18px; /* Taille de l'icône */
+  color: #ccbf2e; /* Couleur initiale vert d'eau */
+  cursor: pointer; /* Curseur pointeur */
+  transition: color 0.3s ease; /* Animation de transition de couleur */
+}
+
+/* Style au survol de l'icône */
+.fas.fa-eye:hover,
+.fas.fa-eye-slash:hover {
+  color: #08bd9c; /* Couleur bleue au survol */
+}
+
+/* Style pour l'icône de commentaire */
+.fas.fa-comment {
+  font-size: 18px; /* Taille de l'icône */
+  color: #ccbf2e; /* Couleur initiale vert d'eau */
+  cursor: pointer; /* Curseur pointeur */
+}
+
+/* Style au survol de l'icône de commentaire */
+.fas.fa-comment:hover {
+  color: #08bd9c; /* Couleur bleue au survol */
+}

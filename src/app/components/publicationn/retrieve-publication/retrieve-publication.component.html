@@ -1,0 +1,54 @@
+<app-header></app-header>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-bordered table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Title</th>
+                        <th scope="col">Content</th>
+                        <th scope="col">Image </th>
+                        <th scope="col">Date de création</th>
+                        <th scope="col" class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let Publication of PublicationList">
+                        <ng-container *ngIf="!Publication.editing; else editRow">
+                        <td>{{ Publication.title }}</td>
+                        <td>{{ Publication.content }}</td>
+                        <td><a href="#"><img class="card-img-top img-responsive"
+                            src = "{{this.publicationService.host+'/api/publications/Imgarticles/'+Publication.idPublication}}" 
+                            style = "height :200px;width:fil-content"
+                           alt=""></a></td>                        <td>{{ Publication.creationDate | date: 'medium' }}</td>
+                        <td class="text-center">
+                            <button (click)="editPublication(Publication)" class="btn btn-primary btn-sm mr-2">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <!-- Delete button with danger color -->
+                            <button class="btn btn-danger btn-sm" (click)="deletePublication(Publication.idPublication)">
+                              <i class="fas fa-trash-alt"></i> Delete
+                            </button>
+                          </td>
+
+                          </ng-container>
+<ng-template #editRow>
+                                <td><input type="text" class="form-control" [(ngModel)]="Publication.title" /></td>
+                               
+                                <td><input type="text" class="form-control" [(ngModel)]="Publication.content" /></td>
+                                <td><input type="text" class="form-control" [(ngModel)]="Publication.fileUrl" /></td>
+
+                                <td class="text-center">
+                                    <button (click)="saveChanges(Publication)" class="btn btn-success btn-sm">
+                                        <i class="fas fa-save"></i> Save
+                                    </button>
+                                </td>
+                            </ng-template>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<app-footer></app-footer>

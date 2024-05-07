@@ -1,0 +1,358 @@
+<meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+        integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>MediaBook</title>
+    <nav>
+      <div class="nav-left">
+          <img src="assets/img/socialmedia/logo.png" alt="Logo">
+          <div class="search-input">
+          <input type="text" [(ngModel)]="searchTitle" placeholder="Search Mediabook..">
+          <button (click)="searchPublicationsByTitle()">
+          <i class="fa fa-search"></i></button></div>
+      </div>
+
+      <div class="nav-middle">
+          <a href="#" class="active">
+              <i class="fa fa-home"></i>
+          </a>
+
+          <a href="#">
+              <i class="fa fa-user-friends"></i>
+          </a>
+
+          <a href="#">
+              <i class="fa fa-play-circle"></i>
+          </a>
+
+          <a href="#">
+              <i class="fa fa-users"></i>
+          </a>
+      </div>
+
+      <div class="nav-right">
+          <span class="profile"></span>
+
+          <a href="#">
+              <i class="fa fa-bell"></i>
+          </a>
+
+          <a href="#">
+              <i class="fas fa-ellipsis-h"></i>
+          </a>
+      </div>
+  </nav>
+  <div class="container">
+    <div class="left-panel">
+        <ul>
+            <li>
+                <span class="profile"></span>
+                <p>Aashish Panthi</p>
+            </li>
+            <li>
+                <i class="fa fa-user-friends"></i>
+                <p>Friends</p>
+            </li>
+            <li>
+                <i class="fa fa-play-circle"></i>
+                <p>Videos</p>
+            </li>
+            <li>
+                <i class="fa fa-flag"></i>
+                <p>Pages</p>
+            </li>
+            <li>
+                <i class="fa fa-users"></i>
+                <p>Groups</p>
+            </li>
+            <li>
+                <i class="fa fa-bookmark"></i>
+                <p>Bookmark</p>
+            </li>
+            <li>
+                <i class="fab fa-facebook-messenger"></i>
+                <p>Inbox</p>
+            </li>
+            <li>
+                <i class="fas fa-calendar-week"></i>
+                <p>Events</p>
+            </li>
+            <li>
+                <i class="fa fa-bullhorn"></i>
+                <p>Ads</p>
+            </li>
+            <li>
+                <i class="fas fa-hands-helping"></i>
+                <p>Offers</p>
+            </li>
+            <li>
+                <i class="fas fa-briefcase"></i>
+                <p>Jobs</p>
+            </li>
+            <li>
+                <i class="fa fa-star"></i>
+                <p>Favourites</p>
+            </li>
+        </ul>
+
+        <div class="footer-links">
+            <a href="#">Privacy</a>
+            <a href="#">Terms</a>
+            <a href="#">Advance</a>
+            <a href="#">More</a>
+        </div>
+    </div>
+
+    <div class="middle-panel">
+
+
+      <div class="post create">
+          <div class="post-top">
+              <div class="dp">
+                  <img src="./images/girl.jpg" alt="">
+              </div>
+              <input type="text" placeholder="What's on your mind, Oumaima ?" (click)="openAddPublicationDialog()" />
+            </div>
+
+          <div class="post-bottom">
+              <div class="action">
+                  <i class="fa fa-video"></i>
+                  <span>Live video</span>
+              </div>
+              <div class="action">
+                  <i class="fa fa-image"></i>
+                  <span>Photo/Video</span>
+              </div>
+              <div class="action">
+                  <i class="fa fa-smile"></i>
+                  <a mat-button color="primary" routerLink="/sondage">Feeling/Activity</a>
+                </div>
+          </div>
+      </div>
+
+<div class="home-content">
+    <div class="card-columns" id="cardContainer">
+        <div *ngFor="let publication of PublicationList" class="post">
+            <div class="post-top">
+
+                    <div class="dp">
+                        <img src="assets/img/socialmedia/dp.jpg" alt="">
+                    </div>
+                    <p class="name">Amin</p>
+              <br>
+              <br>
+            <p class="card-text"><span class="text-muted"> {{ publication.formattedCreationDate }}</span></p>
+            <i class="fas fa-ellipsis-h" (click)="toggleOptions(publication.idPublication)"></i>
+
+            <ul *ngIf="selectedPublicationId === publication.idPublication && showOptions" class="options-list">
+                <div class="icon-container">
+  <li (click)="deletePublication(publication.idPublication)">
+
+    <i class="fas fa-trash-alt icon" style="color: red;" [ngClass]="{ 'clicked': isDeleteClicked }" (click)="toggleClickedState('delete')"></i>
+
+</li>
+  <li (click)="editPublication(publication)">
+    <i class="fas fa-pencil-alt icon"style="color: orange;" [ngClass]="{ 'clicked': isEditClicked }" (click)="toggleClickedState('edit')"></i>
+
+</li>
+</div>
+</ul>
+
+
+          </div>
+          <div>
+          <ng-container *ngIf="!publication.editing; else editRowPublication">
+          <div class="post-content">
+            <h5 class="card-title">{{ publication.title }}</h5>
+            <p class="card-text">{{ publication.content }}</p>
+            <a href="#"><img class="card-img-top img-responsive"
+                src = "{{this.publicationService.host+'/api/publications/Imgarticles/'+publication.idPublication}}"
+                style = "height :200px;width:fil-content"
+               alt=""></a>
+</div></ng-container>
+
+
+               <ng-template #editRowPublication>
+                <!-- Champs d'édition du commentaire -->
+                <input type="text" [(ngModel)]="publication.title" />
+                <input type="text" [(ngModel)]="publication.content" />
+
+
+                <button (click)="saveChange(publication)">
+                    <i class="fas fa-archive"></i>saveChanges
+                </button>
+              </ng-template>
+
+          </div>
+          <div class="post-bottom">
+            <div class="action">
+
+                <i class="fas fa-heart" (click)="increaseLikes()"></i>
+                <span>{{ likes }}</span> <!-- Affiche le nombre de likes -->
+              </div>
+
+
+            <div class="action" (click)="showCommentInput(publication)" >
+              <i class="fas fa-comment-alt"></i>
+              <span>Comment</span>
+            </div>
+             <!-- Zone d'entrée de texte pour le commentaire -->
+
+            <div class="action"  (click)="sharePublication(publication)">
+                <span>{{ publication.shareCount }}</span>
+
+                <i class="fas fa-users"></i>
+                <span>Share</span>
+            </div>
+          </div>
+
+
+          <i class="fas"
+          [ngClass]="{'fa-eye': !publication.showComments, 'fa-eye-slash': publication.showComments}"
+          (click)="toggleComments(publication)">
+       </i>
+       <span (click)="toggleComments(publication)" style="cursor: pointer;">
+          <i class="fas fa-comment"></i>
+       </span>
+
+           <!-- Afficher les commentaires si showComments est vrai -->
+  <div *ngIf="publication.showComments && publication.comments && publication.comments.length > 0">
+
+  <div class="comment-container">
+    <div *ngFor="let comment of publication.comments" class="comment-item">
+        <ng-container *ngIf="!comment.editing; else editRow">
+
+          <!-- Afficher le contenu du commentaire -->
+          <div class="comment-content">
+            <p>{{ comment.content }}</p>
+            <span class="comment-date">{{ comment.creationDate | date }}</span>
+            <button (click)="editComment(comment)">
+              Modifier
+            </button>
+              <button (click)="deleteComment(comment.id)">Supprimer</button> <!-- Ajoutez ce bouton -->
+            <button (click)="analyzeSentiment(comment.content)">
+              {{ sentimentResult !== '' ? 'Résultat : ' + sentimentResult : 'Analyser le sentiment' }}
+            </button>
+
+
+          </div>
+        </ng-container>
+        <ng-template #editRow>
+          <!-- Champs d'édition du commentaire -->
+          <input type="text" [(ngModel)]="comment.content" />
+          <button (click)="saveChanges(comment)">
+            <i class="fas fa-archive"></i> saveChanges
+          </button>
+        </ng-template>
+      </div>
+
+</div>
+
+</div>
+  <!-- Zone d'entrée de texte pour le commentaire -->
+<!-- Zone d'entrée de texte pour le commentaire -->
+<div class="comment-input" *ngIf="publication.showCommentInput">
+    <div class="input-container">
+      <input type="text" class="comment-input-field" placeholder="Add a comment..." [(ngModel)]="publication.newComment">
+      <button class="comment-submit" (click)="addComment(publication)">
+        <i class="fa fa-paper-plane"></i>
+      </button>
+    </div>
+  </div>
+
+        </div>
+
+
+        <!-- Bouton Load More Publications -->
+        <div *ngIf="isLoading" class="text-center mt-3">
+          Loading...
+        </div>
+        <div *ngIf="!isLoading && PublicationList.length === 0" class="text-center mt-3">
+          No more publications to load.
+        </div>
+        <!-- Bouton Load More Publications -->
+<div *ngIf="!isLoading && PublicationList.length > 0 && searchTitle === ''">
+  <button *ngIf="!allPublicationsLoaded" class="btn btn-primary btn-block" (click)="loadMorePublications()">Load More Publications</button>
+</div>
+
+      </div>
+
+<br>
+</div>
+    </div>
+    <div class="right-panel">
+        <div class="pages-section">
+            <h4>Your pages</h4>
+            <a class='page' href="#">
+                <div class="dp">
+                    <img src="assets/img/socialmedia/logo.png" alt="">
+                </div>
+                <p class="name">Cody</p>
+            </a>
+
+            <a class='page' href="#">
+                <div class="dp">
+                    <img src="assets/img/socialmedia/dp.jpg" alt="">
+                </div>
+                <p class="name">Cody Tutorials</p>
+            </a>
+        </div>
+
+        <div class="friends-section">
+            <h4>Friends</h4>
+            <a class='friend' href="#">
+                <div class="dp">
+                    <img src="./images/dp.jpg" alt="">
+                </div>
+                <p class="name">Henry Mosely</p>
+            </a>
+
+            <a class='friend' href="#">
+                <div class="dp">
+                    <img src="./images/shoes.jpg" alt="">
+                </div>
+                <p class="name">George</p>
+            </a>
+
+            <a class="friend" href="#">
+                <div class="dp">
+                    <img src="./images/boy.jpg" alt="">
+                </div>
+                <p class="name">Aakash Malhotra</p>
+            </a>
+
+            <a class="friend" href="#">
+                <div class="dp">
+                    <img src="./images/model.jpg" alt="">
+                </div>
+                <p class="name">Ragini Khanna</p>
+            </a>
+
+            <a class="friend" href="#">
+                <div class="dp">
+                    <img src="./images/boy.jpg" alt="">
+                </div>
+                <p class="name">Justin Bieber</p>
+            </a>
+
+            <a class="friend" href="#">
+                <div class="dp">
+                    <img src="./images/dp.jpg" alt="">
+                </div>
+                <p class="name">Ramesh GC</p>
+            </a>
+
+            <a class="friend" href="#">
+                <div class="dp">
+                    <img src="./images/model.jpg" alt="">
+                </div>
+                <p class="name">Sajita Gurung</p>
+            </a>
+
+        </div>
+    </div>
+
+  </div>

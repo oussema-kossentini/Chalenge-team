@@ -1,0 +1,51 @@
+<div class="container">
+    <div class="left-column">
+      <h2>All Users</h2>
+      <div class="user-list">
+        <div *ngFor="let chat of chatList">
+          <button (click)="goToChat(chat.secondUserName)">
+            <!-- Afficher l'image de profil de l'utilisateur (si disponible) -->
+            <!-- Remplacer 'imageUrl' par le chemin de l'image de profil de l'utilisateur -->
+            <img [src]="'imageUrl'" alt="User Profile">
+            <span>{{ chat.secondUserName }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="right-column">
+      <h2>Chat List</h2>
+      <div class="chat-list">
+        <div *ngFor="let chat of chatList">
+          <button (click)="loadChatByEmail(chat.secondUserName, chat.firstUserName)">
+            <!-- Afficher l'image de profil du destinataire de la conversation -->
+            <img [src]="'imageUrl'" alt="Recipient Profile">
+            <span>{{ chat.secondUserName }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="middle-body">
+      <h2>Chat</h2>
+      <div *ngIf="selectedChatId !== undefined">
+        <div class="message-list">
+          <div *ngFor="let message of messageList">
+            <div *ngIf="message.senderEmail === username" class="sent-message">
+              <p>{{ message.replymessage }}</p>
+              <span>{{ message.time | date: 'mediumTime' }}</span>
+            </div>
+            <div *ngIf="message.senderEmail !== username" class="received-message">
+              <p>{{ message.replymessage }}</p>
+              <span>{{ message.time | date: 'mediumTime' }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="message-input">
+          <input type="text" [(ngModel)]="newMessage" placeholder="Type your message here">
+          <button (click)="sendMessage()">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
