@@ -44,11 +44,17 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
-    private final JwtService jwtService;
-    private final UserRepository userRepository;
+    @Autowired
+    private  JwtService jwtService;
+    @Autowired
+    private  UserRepository userRepository;
+    @Autowired
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
-    private final EmailService emailService;
+    @Autowired
+    private  AuthenticationManager authenticationManager;
+    @Autowired
+    private  EmailService emailService;
+
 
     public boolean requestPasswordReset(String email) {
         Optional<User> userOptional = userRepository.findByEmail(email);

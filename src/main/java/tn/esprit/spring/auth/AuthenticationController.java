@@ -5,6 +5,7 @@ import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import org.webjars.NotFoundException;
 import tn.esprit.spring.configuration.JwtService;
 import tn.esprit.spring.configuration.SecurityConfig;
 import tn.esprit.spring.courszelloback.MultipartFileToByteArrayConverter;
@@ -34,7 +36,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -83,6 +84,38 @@ public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> payload
         }
 
     }
+
+
+    @GetMapping("/userinfo/{idUser}")
+    // @PreAuthorize("hasAuthority('ADMINISTRATOR')")
+
+    @PreAuthorize("hasAuthority('ADMINISTRATOR') || (hasAuthority('USER') || hasAuthority('TEACHER') || hasAuthority('STUDENT') || hasAuthority('PROFESSOR'))")
+
+    // @PreAuthorize("hasRole('ADMINISTRATOR') or hasRole('USER') or hasRole('TEACHER') or hasRole('STUDENT') or hasRole('PROFESSOR')  ")
+    public ResponseEntity<UserInfoResponse> getUserInfo(@PathVariable String idUser, Authentication authentication) {
+        try {
+            Logger logger; // Initialisation du logger
+            logger = LoggerFactory.getLogger(this.getClass());
+            logger.debug("Attempting to find user with ID: {}", idUser);
+            User user = userRepository.findById(idUser)
+                    .orElseThrow(() -> new NotFoundException("User not found"));
+            logger.info("User found: {}", user.getUsername());
+            UserInfoResponse userInfoResponse = UserInfoResponse.builder()
+                    .firstName(user.getFirstName())
+                    .lastName(user.getLastName())
+                    .email(user.getUsername())
+                    .dateOfBirth(user.getDateOfBirth())
+                    .nationality(user.getNationality())
+                    .phone(user.getPhone())
+                    .profilePicture(user.getProfilePicture())
+                    .build();
+            return ResponseEntity.ok(userInfoResponse);
+        } catch (NotFoundException e) {
+            // Gérer l'exception NotFoundException ici
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @PostMapping("/verify-reset-code")
     public ResponseEntity<?> verifyResetCode(@RequestParam("email") String email, @RequestParam("resetToken") String resetToken) {
         boolean isValid = service.verifyResetCode(email,resetToken);
