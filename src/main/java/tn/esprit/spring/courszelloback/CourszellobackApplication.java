@@ -8,13 +8,22 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.convert.converter.GenericConverter;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.format.FormatterRegistry;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.springframework.http.CacheControl.maxAge;
 
@@ -61,6 +70,29 @@ public class CourszellobackApplication  implements WebMvcConfigurer {
 	}
 
 
+	@ControllerAdvice
+	public class GlobalExceptionHandler {
 
+
+		@ExceptionHandler(UsernameNotFoundException.class)
+		public ResponseEntity<Map<String, Object>> handleUsernameNotFoundException(UsernameNotFoundException ex, WebRequest request) {
+			Map<String, Object> errorDetails = new HashMap<>();
+			errorDetails.put("timestamp", new Date());
+			errorDetails.put("error", "User Not Found");
+			errorDetails.put("message", ex.getMessage());
+			errorDetails.put("path", request.getDescription(false).replace("uri=", ""));
+			return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
+		}
+
+		@ExceptionHandler(BadCredentialsException.class)
+		public ResponseEntity<Map<String, Object>> handleBadCredentialsException(BadCredentialsException ex, WebRequest request) {
+			Map<String, Object> errorDetails = new HashMap<>();
+			errorDetails.put("timestamp", new Date());
+			errorDetails.put("error", "Invalid Credentials");
+			errorDetails.put("message", "The credentials provided are incorrect.");
+			errorDetails.put("path", request.getDescription(false).replace("uri=", ""));
+			return new ResponseEntity<>(errorDetails, HttpStatus.UNAUTHORIZED);
+		}
+	}
 
 }
