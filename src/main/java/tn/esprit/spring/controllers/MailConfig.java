@@ -11,14 +11,14 @@ import java.util.Properties;
 @Configuration
 @CrossOrigin(origins = "http://localhost:4200")
 public class MailConfig {
-
-    @Bean
+/////
+  /*@Bean
     public JavaMailSender javaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost("smtp.gmail.com"); // Set the SMTP hostname (assuming Gmail)
         mailSender.setPort(587); // Set the SMTP port
 
-        mailSender.setUsername("alamdarm310@gmail.com"); // Set your Gmail username
+       mailSender.setUsername("alamdarm310@gmail.com"); // Set your Gmail username
         mailSender.setPassword("ehbs aind ltsv azos"); // Set your Gmail password
 
         Properties props = mailSender.getJavaMailProperties();
@@ -27,4 +27,5 @@ public class MailConfig {
 
         return mailSender;
     }
+    */
 }

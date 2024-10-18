@@ -234,15 +234,15 @@ public ResponseEntity<UserInfoResponse> getUserInfo(Authentication authenticatio
     }
 */
 
-@PostMapping("/forgot-password")
-public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> payload) {
-    String email = payload.get("email");
-    boolean result = service.requestPasswordReset(email);
-    if (result) {
-        return ResponseEntity.ok().body("Reset password email sent.");
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestParam("email") String email) {
+        System.out.println("Email received: " + email); // Ajouter cette ligne pour déboguer
+        boolean result = userService.requestPasswordReset(email);
+        if (result) {
+            return ResponseEntity.ok().body("Reset password email sent.");
+        }
+        return ResponseEntity.badRequest().body("Email not found.");
     }
-    return ResponseEntity.badRequest().body("Email not found.");
-}
    /* @RequestMapping(value = "/update-password-after-reset", method = RequestMethod.OPTIONS)
     public HttpStatus handleOptionsRequest() {
         // Autorisez les requêtes OPTIONS pour cette URL
@@ -445,6 +445,7 @@ public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> payload
     }
 
 //
+    /////
     // @PreAuthorize("hasAuthority('ADMINISTRATOR')  || hasAuthority('TEACHER')  || hasAuthority('PROFESSOR')")
 @Autowired
     UserService userService;
